@@ -81,6 +81,7 @@ class JournalEntry:
     """A journal entry."""
 
     date: date
+    guid: str
     amount: Decimal
     debit: str
     credit: str
@@ -212,6 +213,7 @@ def main(args):
         for entry in larger_side:
             d = JournalEntry(
                 date=entry.transaction.date,
+                guid=entry.transaction.guid,
                 amount=entry.value,
                 debit=entry.account.name,
                 credit=smaller_side.account.name,
@@ -220,6 +222,7 @@ def main(args):
             account_journals[entry.account.guid].append(d)
             d = JournalEntry(
                 date=entry.transaction.date,
+                guid=entry.transaction.guid,
                 amount=-entry.value,
                 debit=smaller_side.account.name,
                 credit=entry.account.name,
@@ -235,13 +238,14 @@ def main(args):
         with open(path, 'w') as fd:
             writer = csv.DictWriter(
                 fd,
-                ['date', 'amount', 'debit', 'credit', 'memo'],
+                ['date', 'guid', 'amount', 'debit', 'credit', 'memo'],
             )
             writer.writeheader()
             for entry in account_journal:
                 writer.writerow(
                     {
                         'date': entry.date,
+                        'guid': entry.guid,
                         'amount': entry.amount,
                         'debit': entry.debit,
                         'credit': entry.credit,
