@@ -167,10 +167,9 @@ def populate_transaction_splits():
 
 def is_exportable(splits):
     """Decide whether a transaction with its splits is to be exported."""
-    for split in splits:
-        if split.account in accounts_to_export:
-            return True
-    return False
+    return any(
+        split.account in accounts_to_export for split in splits
+    )
 
 
 def get_debits(splits):
@@ -195,10 +194,9 @@ def main(args):
     populate_transaction_splits()
 
     for tx in transaction_splits.values():
-        if len(tx) == 1:
-            continue
         if not is_exportable(tx):
             continue
+        assert len(tx) > 1
         assert sum(split.value for split in tx) == Decimal(0), tx
         debits = list(get_debits(tx))
         credits = list(get_credits(tx))
