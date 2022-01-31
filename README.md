@@ -1,4 +1,4 @@
-# Gnucash Export
+# Gnucash Export to 会計王
 
 ```
 ./main.py $PATH_TO_BUDGET.sqlite
