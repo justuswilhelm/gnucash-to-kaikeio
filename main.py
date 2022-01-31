@@ -314,16 +314,6 @@ def main(args):
                 伝票種別="0",
             )
             account_journal.append(d)
-            # d = JournalEntry(
-            #     date=entry.transaction.date,
-            #     guid=entry.transaction.guid,
-            #     amount=-entry.value,
-            #     debit=smaller_side.account.name,
-            #     credit=entry.account.name,
-            #     memo=smaller_side.transaction.description
-            #     + " " + smaller_side.memo,
-            # )
-            # account_journal[smaller_side.account.guid].append(d)
 
     account_journal.sort(key=lambda a: a.伝票日付)
     path = (out_dir / "output").with_suffix('.csv')
