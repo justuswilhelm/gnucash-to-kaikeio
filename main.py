@@ -11,6 +11,7 @@ from pathlib import Path
 import argparse
 import csv
 import sqlite3
+import pandas
 
 query = """
 SELECT * FROM splits
@@ -316,16 +317,16 @@ def main(args):
             account_journal.append(d)
 
     account_journal.sort(key=lambda a: a.伝票日付)
-    path = (out_dir / "output").with_suffix('.csv')
-    with open(path, 'w') as fd:
-        first_entry = account_journal[0]
-        writer = csv.DictWriter(
-            fd,
-            asdict(first_entry).keys()
-        )
-        writer.writeheader()
-        for entry in account_journal:
-            writer.writerow(asdict(entry))
+    path = (out_dir / "output").with_suffix('.xlsx')
+    entries = [asdict(entry) for entry in account_journal]
+    df = pandas.DataFrame(entries)
+    writer = pandas.ExcelWriter(
+        path,
+        engine='xlsxwriter',
+        date_format='yyyy-mm-dd',
+    )
+    df.to_excel(writer, sheet_name='Sheet1')
+    writer.save()
 
 
 if __name__ == "__main__":
