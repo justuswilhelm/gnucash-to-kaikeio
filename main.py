@@ -9,7 +9,6 @@ from datetime import date
 from decimal import Decimal
 from pathlib import Path
 import argparse
-import csv
 import sqlite3
 import pandas
 
@@ -180,7 +179,6 @@ def get_transactions(con):
         )
 
 
-
 def get_splits(con):
     """Get all splits."""
     cur = con.cursor()
@@ -274,8 +272,10 @@ def main(args):
                 仕訳作成日付=entry.transaction.enter_date,
                 取引区分コード="0",
                 取引区分名称="決算取引",
-                借方科目コード=entry.account.guid if swap else smaller_side.account.guid,
-                借方科目名称=entry.account.name if swap else smaller_side.account.name,
+                借方科目コード=entry.account.guid
+                if swap else smaller_side.account.guid,
+                借方科目名称=entry.account.name
+                if swap else smaller_side.account.name,
                 借方補助コード="0",
                 借方補助科目名称="",
                 借方部門コード="0",
@@ -289,8 +289,10 @@ def main(args):
                 借方税率="0%",
                 借方金額=value,
                 借方消費税="0",
-                貸方科目コード=smaller_side.account.guid if swap else entry.account.guid,
-                貸方科目名称=smaller_side.account.name if swap else entry.account.name,
+                貸方科目コード=smaller_side.account.guid
+                if swap else entry.account.guid,
+                貸方科目名称=smaller_side.account.name
+                if swap else entry.account.name,
                 貸方補助コード="0",
                 貸方補助科目名称="",
                 貸方部門コード="0",
@@ -305,10 +307,18 @@ def main(args):
                 貸方金額=value,
                 貸方消費税="0",
                 取引摘要コード="",
-                取引摘要=entry.transaction.description + " " + entry.memo + " " + smaller_side.memo,
+                取引摘要=entry.transaction.description +
+                " " +
+                entry.memo +
+                " " +
+                smaller_side.memo,
                 補助摘要コード="",
                 補助摘要="",
-                メモ=entry.transaction.description + " " + entry.memo + " " + smaller_side.memo,
+                メモ=entry.transaction.description +
+                " " +
+                entry.memo +
+                " " +
+                smaller_side.memo,
                 付箋１="0",
                 付箋２="0",
                 数量="0.00",
