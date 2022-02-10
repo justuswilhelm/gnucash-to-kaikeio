@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 """Main module."""
-from collections import defaultdict
+from collections import (
+    defaultdict,
+)
+from itertools import (
+    count,
+)
 from dataclasses import (
     asdict,
     dataclass,
@@ -8,15 +13,9 @@ from dataclasses import (
 from datetime import date
 from decimal import Decimal
 from pathlib import Path
+import csv
 import argparse
 import sqlite3
-import pandas
-
-query = """
-SELECT * FROM splits
-INNER JOIN transactions ON transactions.guid = splits.tx_guid
-INNER JOIN accounts ON splits.account_guid = accounts.guid
-"""
 
 select_accounts = """
 SELECT * FROM accounts
@@ -31,7 +30,17 @@ SELECT * FROM splits
 """
 
 
-out_dir = Path('out')
+out_dir = Path("out")
+
+
+class KaikeoDialect(csv.Dialect):
+    """CSV dialect for kaikeio."""
+
+    delimiter = ","
+    doublequote = True
+    quotechar = '"'
+    quoting = csv.QUOTE_ALL
+    lineterminator = "\r\n"
 
 
 def dict_factory(cursor, row):
@@ -48,6 +57,10 @@ class Account:
     guid: str
     _name: str
     parent_guid: str
+    account: str
+    account_supplementary: str
+    account_name: str
+    account_supplementary_name: str
 
     @property
     def name(self):
@@ -65,7 +78,6 @@ class Transaction:
 
     guid: str
     date: date
-    enter_date: date
     description: str
 
 
@@ -86,52 +98,38 @@ class JournalEntry:
     A journal entry.
     """
 
-    通番: str
     伝票番号: str
     行番号: str
-    伝票日付: date
-    作成者: str
-    仕訳作成日付: date
-    取引区分コード: str
-    取引区分名称: str
+    伝票日付: str
     借方科目コード: str
     借方科目名称: str
     借方補助コード: str
     借方補助科目名称: str
     借方部門コード: str
     借方部門名称: str
-    借方課税区分コード: str
-    借方課税区分名称: str
-    借方事業分類コード: str
-    借方事業分類名称: str
-    借方税処理コード: str
-    借方税処理名称: str
-    借方税率: Decimal
+    借方課税区分: str
+    借方事業分類: str
+    借方消費税処理方法: str
+    借方消費税率: Decimal
     借方金額: Decimal
-    借方消費税: Decimal
+    借方消費税額: Decimal
     貸方科目コード: str
     貸方科目名称: str
     貸方補助コード: str
     貸方補助科目名称: str
     貸方部門コード: str
     貸方部門名称: str
-    貸方課税区分コード: str
-    貸方課税区分名称: str
-    貸方事業分類コード: str
-    貸方事業分類名称: str
-    貸方税処理コード: str
-    貸方税処理名称: str
-    貸方税率: Decimal
+    貸方課税区分: str
+    貸方事業分類: str
+    貸方消費税処理方法: str
+    貸方消費税率: Decimal
     貸方金額: Decimal
-    貸方消費税: Decimal
-    取引摘要コード: str
-    取引摘要: str
-    補助摘要コード: str
+    貸方消費税額: Decimal
+    摘要: str
     補助摘要: str
     メモ: str
     付箋１: str
     付箋２: str
-    数量: str
     伝票種別: str
 
 
@@ -141,6 +139,7 @@ splits = {}
 
 accounts_to_read = []
 accounts_to_read_names = []
+accounts_to_read_struct = {}
 accounts_to_export = []
 accounts_to_export_names = []
 
@@ -153,10 +152,15 @@ def get_accounts(con):
     cur = con.cursor()
     cur.execute(select_accounts)
     for row in cur.fetchall():
-        accounts[row['guid']] = Account(
-            guid=row['guid'],
-            _name=row['name'],
-            parent_guid=row['parent_guid'],
+        accounts[row["guid"]] = Account(
+            guid=row["guid"],
+            _name=row["name"],
+            parent_guid=row["parent_guid"],
+            # Set them to empty for now
+            account="",
+            account_supplementary="",
+            account_name="",
+            account_supplementary_name="",
         )
 
     for account in accounts.values():
@@ -164,6 +168,17 @@ def get_accounts(con):
             accounts_to_read.append(account)
         if account.name in accounts_to_export_names:
             accounts_to_export.append(account)
+        account_additional = accounts_to_read_struct.get(account.name)
+        if not account_additional:
+            continue
+        account.account = account_additional["account"]
+        account.account_supplementary = account_additional[
+            "account_supplementary"
+        ]
+        account.account_name = account_additional["account_name"]
+        account.account_supplementary_name = account_additional[
+            "account_supplementary_name"
+        ]
 
 
 def get_transactions(con):
@@ -171,11 +186,10 @@ def get_transactions(con):
     cur = con.cursor()
     cur.execute(select_transactions)
     for row in cur.fetchall():
-        transactions[row['guid']] = Transaction(
-            guid=row['guid'],
-            date=date.fromisoformat(row['post_date'].split(' ')[0]),
-            enter_date=date.fromisoformat(row['enter_date'].split(' ')[0]),
-            description=row['description'],
+        transactions[row["guid"]] = Transaction(
+            guid=row["guid"],
+            date=date.fromisoformat(row["post_date"].split(" ")[0]),
+            description=row["description"],
         )
 
 
@@ -184,23 +198,25 @@ def get_splits(con):
     cur = con.cursor()
     cur.execute(select_splits)
     for row in cur.fetchall():
-        account = accounts[row['account_guid']]
+        account = accounts[row["account_guid"]]
         split = Split(
-            guid=row['guid'],
+            guid=row["guid"],
             account=account,
-            transaction=transactions[row['tx_guid']],
-            memo=row['memo'],
-            value=Decimal(row['value_num'])
+            transaction=transactions[row["tx_guid"]],
+            memo=row["memo"],
+            value=Decimal(row["value_num"]),
         )
         if account in accounts_to_read:
-            splits[row['guid']] = split
+            splits[row["guid"]] = split
 
 
 def read_accounts():
     """Read in all accounts to export."""
     with open("accounts.csv") as fd:
-        for line in fd.readlines():
-            accounts_to_read_names.append(line.strip())
+        reader = csv.DictReader(fd)
+        for row in reader:
+            accounts_to_read_struct[row["name"]] = row
+            accounts_to_read_names.append(row["name"])
     with open("export.csv") as fd:
         for line in fd.readlines():
             accounts_to_export_names.append(line.strip())
@@ -214,9 +230,7 @@ def populate_transaction_splits():
 
 def is_exportable(splits):
     """Decide whether a transaction with its splits is to be exported."""
-    return any(
-        split.account in accounts_to_export for split in splits
-    )
+    return any(split.account in accounts_to_export for split in splits)
 
 
 def get_debits(splits):
@@ -227,6 +241,11 @@ def get_debits(splits):
 def get_credits(splits):
     """Get all credits from a split."""
     return filter(lambda split: split.value < 0, splits)
+
+
+def format_date(date):
+    """Format date."""
+    return date.strftime("%Y/%m/%d")
 
 
 def main(args):
@@ -240,7 +259,10 @@ def main(args):
     get_splits(con)
     populate_transaction_splits()
 
-    for tx in transaction_splits.values():
+    counter = count(start=1)
+    transaction_splits_values = list(transaction_splits.values())
+    transaction_splits_values.sort(key=lambda tx: tx[0].transaction.date)
+    for tx in transaction_splits_values:
         if not is_exportable(tx):
             continue
         assert len(tx) > 1
@@ -263,84 +285,83 @@ def main(args):
             swap = False
         for entry in larger_side:
             value = abs(entry.value)
+            number = next(counter)
+            memo = " ".join(
+                [
+                    entry.transaction.description,
+                    entry.memo,
+                    smaller_side.memo,
+                ]
+            ).replace("\xa0", " ")
             d = JournalEntry(
-                通番=entry.transaction.guid,
-                伝票番号=entry.transaction.guid,
+                伝票番号=str(number),
                 行番号="1",
-                伝票日付=entry.transaction.date,
-                作成者="ADMINISTRATOR",
-                仕訳作成日付=entry.transaction.enter_date,
-                取引区分コード="0",
-                取引区分名称="決算取引",
-                借方科目コード=entry.account.guid
-                if swap else smaller_side.account.guid,
-                借方科目名称=entry.account.name
-                if swap else smaller_side.account.name,
-                借方補助コード="0",
-                借方補助科目名称="",
+                伝票日付=format_date(entry.transaction.date),
+                借方科目コード=entry.account.account
+                if swap
+                else smaller_side.account.account,
+                借方科目名称=entry.account.account_name
+                if swap
+                else smaller_side.account.account_name,
+                借方補助コード=entry.account.account_supplementary
+                if swap
+                else smaller_side.account.account_supplementary,
+                借方補助科目名称=entry.account.account_supplementary_name
+                if swap
+                else smaller_side.account.account_supplementary_name,
                 借方部門コード="0",
                 借方部門名称="",
-                借方課税区分コード="0",
-                借方課税区分名称="",
-                借方事業分類コード="0",
-                借方事業分類名称="",
-                借方税処理コード="3",
-                借方税処理名称="税込",
-                借方税率="0%",
+                借方課税区分="0",
+                借方事業分類="0",
+                借方消費税処理方法="3",
+                借方消費税率="0%",
                 借方金額=value,
-                借方消費税="0",
-                貸方科目コード=smaller_side.account.guid
-                if swap else entry.account.guid,
-                貸方科目名称=smaller_side.account.name
-                if swap else entry.account.name,
-                貸方補助コード="0",
-                貸方補助科目名称="",
+                借方消費税額="0",
+                貸方科目コード=smaller_side.account.account
+                if swap
+                else entry.account.account,
+                貸方科目名称=smaller_side.account.account_name
+                if swap
+                else entry.account.account_name,
+                貸方補助コード=smaller_side.account.account_supplementary
+                if swap
+                else entry.account.account_supplementary,
+                貸方補助科目名称=smaller_side.account.account_supplementary_name
+                if swap
+                else entry.account.account_supplementary_name,
                 貸方部門コード="0",
                 貸方部門名称="",
-                貸方課税区分コード="0",
-                貸方課税区分名称="",
-                貸方事業分類コード="0",
-                貸方事業分類名称="",
-                貸方税処理コード="3",
-                貸方税処理名称="税込",
-                貸方税率="0%",
+                貸方課税区分="",
+                貸方事業分類="0",
+                貸方消費税処理方法="3",
+                貸方消費税率="0%",
                 貸方金額=value,
-                貸方消費税="0",
-                取引摘要コード="",
-                取引摘要=entry.transaction.description +
-                " " +
-                entry.memo +
-                " " +
-                smaller_side.memo,
-                補助摘要コード="",
+                貸方消費税額="0",
+                摘要="",
                 補助摘要="",
-                メモ=entry.transaction.description +
-                " " +
-                entry.memo +
-                " " +
-                smaller_side.memo,
+                メモ=memo,
                 付箋１="0",
                 付箋２="0",
-                数量="0.00",
                 伝票種別="0",
             )
             account_journal.append(d)
 
     account_journal.sort(key=lambda a: a.伝票日付)
-    path = (out_dir / "output").with_suffix('.xlsx')
+    path = (out_dir / "output").with_suffix(".txt")
     entries = [asdict(entry) for entry in account_journal]
-    df = pandas.DataFrame(entries)
-    writer = pandas.ExcelWriter(
-        path,
-        engine='xlsxwriter',
-        date_format='yyyy-mm-dd',
-    )
-    df.to_excel(writer, sheet_name='Sheet1')
-    writer.save()
+    with open(path, "w", encoding="shift_jis") as fd:
+        writer = csv.DictWriter(
+            fd,
+            list(entries[0].keys()),
+            dialect=KaikeoDialect,
+        )
+        writer.writeheader()
+        for entry in entries:
+            writer.writerow(entry)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('infile')
+    parser.add_argument("infile")
     args = parser.parse_args()
     main(args)
