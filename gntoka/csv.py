@@ -57,7 +57,7 @@ def read_account_info(
     account_info = AccountInfo(
         exportable_account_names=read_exportable_accounts(config),
         accounts_to_read_struct=account_links,
-        accounts_to_read_names=list(account_links.keys()),
+        importable_account_names=list(account_links.keys()),
     )
 
     return account_info

@@ -143,7 +143,7 @@ AccountLinks = Mapping[str, AccountLink]
 class AccountInfo:
     """Contains information about accounts to process and export."""
 
-    accounts_to_read_names: AccountNames = field(default_factory=list)
+    importable_account_names: AccountNames = field(default_factory=list)
     exportable_account_names: AccountNames = field(default_factory=list)
     accounts_to_read_struct: AccountLinks = field(default_factory=dict)
 

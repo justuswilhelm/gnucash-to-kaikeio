@@ -164,7 +164,7 @@ def main(config: Configuration) -> None:
     get_accounts(
         con,
         accounts.accounts_to_read,
-        account_info.accounts_to_read_names,
+        account_info.importable_account_names,
         accounts.accounts_to_export,
         account_info.exportable_account_names,
         account_info.accounts_to_read_struct,

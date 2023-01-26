@@ -52,7 +52,7 @@ def dict_factory(cursor: sqlite3.Cursor, row: Sequence[str]) -> Dict[str, str]:
 def get_accounts(
     con: sqlite3.Connection,
     accounts_to_read: AccountSequence,
-    accounts_to_read_names: AccountNames,
+    importable_account_names: AccountNames,
     accounts_to_export: AccountSequence,
     exportable_account_names: AccountNames,
     accounts_to_read_struct: AccountLinks,
@@ -75,7 +75,7 @@ def get_accounts(
 
     for account in accounts.values():
         acc_name = account_name(account, accounts)
-        if acc_name in accounts_to_read_names:
+        if acc_name in importable_account_names:
             accounts_to_read.append(account)
         if acc_name in exportable_account_names:
             accounts_to_export.append(account)
