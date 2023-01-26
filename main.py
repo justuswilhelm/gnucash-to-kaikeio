@@ -166,7 +166,7 @@ def main(config: Configuration) -> None:
         accounts.accounts_to_read,
         account_info.accounts_to_read_names,
         accounts.accounts_to_export,
-        account_info.accounts_to_export_names,
+        account_info.exportable_account_names,
         account_info.accounts_to_read_struct,
         db_contents.accounts,
     )
