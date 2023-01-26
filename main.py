@@ -54,16 +54,6 @@ def is_exportable(accounts: Accounts, splits: Iterable[Split]) -> bool:
     )
 
 
-def get_debits(splits: Iterable[Split]) -> Iterable[Split]:
-    """Get all debits from a split."""
-    return filter(lambda split: split.value > 0, splits)
-
-
-def get_credits(splits: Iterable[Split]) -> Iterable[Split]:
-    """Get all credits from a split."""
-    return filter(lambda split: split.value < 0, splits)
-
-
 def main(config: Configuration) -> None:
     """Run program."""
     con = db.open_connection(config)
@@ -112,8 +102,8 @@ def main(config: Configuration) -> None:
             continue
         assert len(tx) > 1
         assert sum(split.value for split in tx) == Decimal(0), tx
-        debits = list(get_debits(tx))
-        credits = list(get_credits(tx))
+        debits = list(util.get_debits(tx))
+        credits = list(util.get_credits(tx))
         # Scenario one, one credit split that funds n debit splits
         if len(debits) > len(credits):
             assert len(credits) == 1
