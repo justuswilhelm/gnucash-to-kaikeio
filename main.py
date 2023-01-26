@@ -27,6 +27,7 @@ from typing import (
     Sequence,
 )
 
+import toml
 from gntoka.db import (
     get_accounts,
     get_splits,
@@ -35,15 +36,14 @@ from gntoka.db import (
 from gntoka.types import (
     AccountSequence,
     AccountStore,
+    Configuration,
+    JournalEntries,
     JournalEntry,
     Split,
     SplitStore,
     TransactionStore,
     WhatIsThis,
 )
-
-
-out_dir = Path("out")
 
 
 class KaikeoDialect(csv.Dialect):
@@ -75,17 +75,17 @@ accounts_to_export: AccountSequence = []
 accounts_to_export_names = []
 
 transaction_splits = defaultdict(list)
-account_journal = []
+account_journal: JournalEntries = []
 
 
-def read_accounts() -> None:
+def read_accounts(config: Configuration) -> None:
     """Read in all accounts to export."""
-    with open("accounts.csv") as fd:
+    with open(config.accounts_read_csv) as fd:
         reader = csv.DictReader(fd)
         for row in reader:
             accounts_to_read_struct[row["name"]] = row
             accounts_to_read_names.append(row["name"])
-    with open("export.csv") as fd:
+    with open(config.accounts_export_csv) as fd:
         for line in fd.readlines():
             accounts_to_export_names.append(line.strip())
 
@@ -116,11 +116,11 @@ def format_date(d: date) -> str:
     return d.strftime("%Y/%m/%d")
 
 
-def main(args: argparse.Namespace) -> None:
+def main(config: Configuration) -> None:
     """Run program."""
-    read_accounts()
+    read_accounts(config)
 
-    con: sqlite3.Connection = sqlite3.connect(args.infile)
+    con: sqlite3.Connection = sqlite3.connect(config.gnucash_db)
     con.row_factory = dict_factory
     get_accounts(
         con,
@@ -223,9 +223,8 @@ def main(args: argparse.Namespace) -> None:
             account_journal.append(d)
 
     account_journal.sort(key=lambda a: a.伝票日付)
-    path = (out_dir / "output").with_suffix(".txt")
     entry_dicts = [asdict(e) for e in account_journal]
-    with open(path, "w", encoding="shift_jis") as fd:
+    with open(config.journal_out_csv, "w", encoding="shift_jis") as fd:
         writer = csv.DictWriter(
             fd,
             list(entry_dicts[0].keys()),
@@ -238,6 +237,22 @@ def main(args: argparse.Namespace) -> None:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("infile")
+    parser.add_argument("config")
     args = parser.parse_args()
-    main(args)
+    config_path = Path(args.config)
+    with config_path.open() as fd:
+        config_dict = toml.load(fd)
+    config_path_parent = config_path.parent
+    configuration = Configuration(
+        gnucash_db=Path(config_path_parent / config_dict["gnucash_db"]),
+        accounts_read_csv=Path(
+            config_path_parent / config_dict["accounts_read_csv"]
+        ),
+        accounts_export_csv=Path(
+            config_path_parent / config_dict["accounts_export_csv"]
+        ),
+        journal_out_csv=Path(
+            config_path_parent / config_dict["journal_out_csv"]
+        ),
+    )
+    main(configuration)

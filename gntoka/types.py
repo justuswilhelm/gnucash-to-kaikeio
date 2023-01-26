@@ -8,6 +8,9 @@ from datetime import (
 from decimal import (
     Decimal,
 )
+from pathlib import (
+    Path,
+)
 from typing import (
     Dict,
     List,
@@ -91,6 +94,17 @@ AccountStore = Dict[str, Account]
 AccountSequence = List[Account]
 TransactionStore = Dict[str, Transaction]
 SplitStore = Dict[str, Split]
+JournalEntries = List[JournalEntry]
 
 NamesToRead = Sequence[str]
 WhatIsThis = Dict[str, Dict[str, str]]
+
+
+@dataclass
+class Configuration:
+    """Store configuration variables."""
+
+    gnucash_db: Path
+    accounts_read_csv: Path
+    accounts_export_csv: Path
+    journal_out_csv: Path

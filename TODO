@@ -3,4 +3,3 @@
 - Put csv writing in separate module
 - Add py test
 - Add sample config / sample input and output
-- Use TOML
