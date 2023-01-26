@@ -33,7 +33,7 @@ from gntoka.db import (
 )
 from gntoka.types import (
     AccountNames,
-    AccountSequence,
+    Accounts,
     Configuration,
     DbContents,
     JournalEntries,
@@ -43,9 +43,7 @@ from gntoka.types import (
 )
 
 
-accounts_to_read: AccountSequence = []
 accounts_to_read_struct: WhatIsThis = {}
-accounts_to_export: AccountSequence = []
 
 account_journal: JournalEntries = []
 
@@ -56,9 +54,11 @@ def populate_transaction_splits(db_contents: DbContents) -> None:
         db_contents.transaction_splits[split.transaction.guid].append(split)
 
 
-def is_exportable(splits: Iterable[Split]) -> bool:
+def is_exportable(accounts: Accounts, splits: Iterable[Split]) -> bool:
     """Decide whether a transaction with its splits is to be exported."""
-    return any(split.account in accounts_to_export for split in splits)
+    return any(
+        split.account in accounts.accounts_to_export for split in splits
+    )
 
 
 def get_debits(splits: Iterable[Split]) -> Iterable[Split]:
@@ -81,6 +81,7 @@ def main(config: Configuration) -> None:
     con = db.open_connection(config)
 
     account_names = AccountNames()
+    accounts = Accounts()
 
     read_accounts(
         config,
@@ -93,9 +94,9 @@ def main(config: Configuration) -> None:
 
     get_accounts(
         con,
-        accounts_to_read,
+        accounts.accounts_to_read,
         account_names.accounts_to_read_names,
-        accounts_to_export,
+        accounts.accounts_to_export,
         account_names.accounts_to_export_names,
         accounts_to_read_struct,
         db_contents.accounts,
@@ -103,7 +104,7 @@ def main(config: Configuration) -> None:
     get_transactions(con, db_contents.transactions)
     get_splits(
         con,
-        accounts_to_read,
+        accounts.accounts_to_read,
         db_contents.accounts,
         db_contents.transactions,
         db_contents.splits,
@@ -114,7 +115,7 @@ def main(config: Configuration) -> None:
     transaction_splits_values = list(db_contents.transaction_splits.values())
     transaction_splits_values.sort(key=lambda tx: tx[0].transaction.date)
     for tx in transaction_splits_values:
-        if not is_exportable(tx):
+        if not is_exportable(accounts, tx):
             continue
         assert len(tx) > 1
         assert sum(split.value for split in tx) == Decimal(0), tx

@@ -128,3 +128,11 @@ class AccountNames:
 
     accounts_to_read_names: NamesToRead = []
     accounts_to_export_names: NamesToRead = []
+
+
+@dataclass
+class Accounts:
+    """Contains all accounts."""
+
+    accounts_to_read: AccountSequence = []
+    accounts_to_export: AccountSequence = []
