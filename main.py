@@ -153,19 +153,15 @@ def main(config: Configuration) -> None:
     """Run program."""
     con = db.open_connection(config)
 
-    accounts = Accounts()
-
     account_info = read_account_info(
         config,
     )
 
     db_contents = DbContents()
 
-    get_accounts(
+    accounts = get_accounts(
         con,
         account_info,
-        accounts.accounts_to_read,
-        accounts.accounts_to_export,
         db_contents,
     )
     get_transactions(con, db_contents)
