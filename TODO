@@ -1,6 +1,5 @@
 # TODO
 
-- Add isort
 - Add py docstring
 - Use separate types module
 - Put csv writing in separate module

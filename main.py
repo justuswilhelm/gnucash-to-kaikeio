@@ -1,27 +1,33 @@
 #!/usr/bin/env python3
 """Main module."""
+import argparse
+import csv
+import sqlite3
 from collections import (
     defaultdict,
-)
-from itertools import (
-    count,
 )
 from dataclasses import (
     asdict,
     dataclass,
 )
-from datetime import date
-from decimal import Decimal
-from pathlib import Path
-import csv
-import argparse
-import sqlite3
-
+from datetime import (
+    date,
+)
+from decimal import (
+    Decimal,
+)
+from itertools import (
+    count,
+)
+from pathlib import (
+    Path,
+)
 from typing import (
     Dict,
     Iterable,
     Sequence,
 )
+
 
 select_accounts = """
 SELECT * FROM accounts

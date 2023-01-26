@@ -8,9 +8,11 @@ pandas = "*"
 xlsxwriter = "*"
 
 [dev-packages]
-flake8 = "*"
 black = "*"
+isort = "==5.10.1"
+flake8 = "*"
 flake8-black = "*"
+flake8-isort = "==4.1.1"
 mypy = "*"
 
 [requires]
