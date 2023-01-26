@@ -32,22 +32,20 @@ from gntoka.db import (
     get_transactions,
 )
 from gntoka.types import (
+    AccountNames,
     AccountSequence,
     Configuration,
     DbContents,
     JournalEntries,
     JournalEntry,
-    NamesToRead,
     Split,
     WhatIsThis,
 )
 
 
 accounts_to_read: AccountSequence = []
-accounts_to_read_names: NamesToRead = []
 accounts_to_read_struct: WhatIsThis = {}
 accounts_to_export: AccountSequence = []
-accounts_to_export_names: NamesToRead = []
 
 account_journal: JournalEntries = []
 
@@ -81,10 +79,13 @@ def format_date(d: date) -> str:
 def main(config: Configuration) -> None:
     """Run program."""
     con = db.open_connection(config)
+
+    account_names = AccountNames()
+
     read_accounts(
         config,
-        accounts_to_read_names,
-        accounts_to_export_names,
+        account_names.accounts_to_read_names,
+        account_names.accounts_to_export_names,
         accounts_to_read_struct,
     )
 
@@ -93,9 +94,9 @@ def main(config: Configuration) -> None:
     get_accounts(
         con,
         accounts_to_read,
-        accounts_to_read_names,
+        account_names.accounts_to_read_names,
         accounts_to_export,
-        accounts_to_export_names,
+        account_names.accounts_to_export_names,
         accounts_to_read_struct,
         db_contents.accounts,
     )

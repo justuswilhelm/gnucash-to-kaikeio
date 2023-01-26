@@ -120,3 +120,11 @@ class DbContents:
     transactions: TransactionStore = {}
     splits: SplitStore = {}
     transaction_splits: Dict[str, List[Split]] = defaultdict(list)
+
+
+@dataclass
+class AccountNames:
+    """Contains information about accounts to process and export."""
+
+    accounts_to_read_names: NamesToRead = []
+    accounts_to_export_names: NamesToRead = []
