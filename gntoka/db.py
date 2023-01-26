@@ -93,13 +93,13 @@ def get_accounts(
 
 
 def get_transactions(
-    con: sqlite3.Connection, transactions: TransactionStore
+    con: sqlite3.Connection, transaction_store: TransactionStore
 ) -> None:
     """Get all transactions."""
     cur = con.cursor()
     cur.execute(select_transactions)
     for row in cur.fetchall():
-        transactions[row["guid"]] = Transaction(
+        transaction_store[row["guid"]] = Transaction(
             guid=row["guid"],
             date=date.fromisoformat(row["post_date"].split(" ")[0]),
             description=row["description"],
@@ -110,8 +110,8 @@ def get_splits(
     con: sqlite3.Connection,
     accounts_to_read: AccountSequence,
     account_store: AccountStore,
-    transactions: TransactionStore,
-    splits: SplitStore,
+    transaction_store: TransactionStore,
+    split_store: SplitStore,
 ) -> None:
     """Get all splits."""
     cur = con.cursor()
@@ -121,12 +121,12 @@ def get_splits(
         split = Split(
             guid=row["guid"],
             account=account,
-            transaction=transactions[row["tx_guid"]],
+            transaction=transaction_store[row["tx_guid"]],
             memo=row["memo"],
             value=Decimal(row["value_num"]),
         )
         if account in accounts_to_read:
-            splits[row["guid"]] = split
+            split_store[row["guid"]] = split
 
 
 def open_connection(config: Configuration) -> sqlite3.Connection:
