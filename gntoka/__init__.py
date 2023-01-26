@@ -1,0 +1,1 @@
+"""Gnucash to Kaikeio package."""

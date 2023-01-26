@@ -8,7 +8,6 @@ from collections import (
 )
 from dataclasses import (
     asdict,
-    dataclass,
 )
 from datetime import (
     date,
@@ -25,7 +24,15 @@ from pathlib import (
 from typing import (
     Dict,
     Iterable,
+    Mapping,
     Sequence,
+)
+
+from gntoka.types import (
+    Account,
+    JournalEntry,
+    Split,
+    Transaction,
 )
 
 
@@ -63,87 +70,6 @@ def dict_factory(cursor: sqlite3.Cursor, row: Sequence[str]) -> Dict[str, str]:
     return d
 
 
-@dataclass
-class Account:
-    """An account."""
-
-    guid: str
-    _name: str
-    parent_guid: str
-    account: str
-    account_supplementary: str
-    account_name: str
-    account_supplementary_name: str
-
-    @property
-    def name(self) -> str:
-        """Return full name."""
-        if not self.parent_guid:
-            return self._name
-        if accounts[self.parent_guid].name == "Root Account":
-            return self._name
-        return accounts[self.parent_guid].name + ":" + self._name
-
-
-@dataclass
-class Transaction:
-    """A transaction."""
-
-    guid: str
-    date: date
-    description: str
-
-
-@dataclass
-class Split:
-    """A split."""
-
-    guid: str
-    account: Account
-    transaction: Transaction
-    memo: str
-    value: Decimal
-
-
-@dataclass
-class JournalEntry:
-    """A journal entry."""
-
-    伝票番号: str
-    行番号: str
-    伝票日付: str
-    借方科目コード: str
-    借方科目名称: str
-    借方補助コード: str
-    借方補助科目名称: str
-    借方部門コード: str
-    借方部門名称: str
-    借方課税区分: str
-    借方事業分類: str
-    借方消費税処理方法: str
-    借方消費税率: str
-    借方金額: Decimal
-    借方消費税額: Decimal
-    貸方科目コード: str
-    貸方科目名称: str
-    貸方補助コード: str
-    貸方補助科目名称: str
-    貸方部門コード: str
-    貸方部門名称: str
-    貸方課税区分: str
-    貸方事業分類: str
-    貸方消費税処理方法: str
-    貸方消費税率: str
-    貸方金額: Decimal
-    貸方消費税額: Decimal
-    摘要: str
-    補助摘要: str
-    メモ: str
-    付箋１: str
-    付箋２: str
-    伝票種別: str
-
-
 accounts = {}
 transactions = {}
 splits = {}
@@ -156,6 +82,16 @@ accounts_to_export_names = []
 
 transaction_splits = defaultdict(list)
 account_journal = []
+
+
+def account_name(account: Account, accounts: Mapping[str, Account]) -> str:
+    """Return full name."""
+    if not account.parent_guid:
+        return account._name
+    parent_name = account_name(accounts[account.parent_guid], accounts)
+    if parent_name == "Root Account":
+        return account._name
+    return parent_name + ":" + account._name
 
 
 def get_accounts(con: sqlite3.Connection) -> None:
@@ -175,11 +111,12 @@ def get_accounts(con: sqlite3.Connection) -> None:
         )
 
     for account in accounts.values():
-        if account.name in accounts_to_read_names:
+        acc_name = account_name(account, accounts)
+        if acc_name in accounts_to_read_names:
             accounts_to_read.append(account)
-        if account.name in accounts_to_export_names:
+        if acc_name in accounts_to_export_names:
             accounts_to_export.append(account)
-        account_additional = accounts_to_read_struct.get(account.name)
+        account_additional = accounts_to_read_struct.get(acc_name)
         if not account_additional:
             continue
         account.account = account_additional["account"]
