@@ -144,6 +144,7 @@ class AccountNames:
 
     accounts_to_read_names: NamesToRead = field(default_factory=list)
     accounts_to_export_names: NamesToRead = field(default_factory=list)
+    accounts_to_read_struct: AccountLinks = field(default_factory=dict)
 
 
 @dataclass
