@@ -10,6 +10,7 @@ from . import (
 from .types import (
     AccountInfo,
     AccountLink,
+    AccountNames,
     Configuration,
 )
 
@@ -24,11 +25,21 @@ class KaikeoDialect(csv.Dialect):
     lineterminator = "\r\n"
 
 
+def read_exportable_accounts(config: Configuration) -> AccountNames:
+    """Read names of accounts that are to be exported."""
+    with config.accounts_export_csv.open() as fd:
+        reader = csv.DictReader(fd)
+        rows = [row for row in reader]
+    return [row["name"] for row in rows]
+
+
 def read_account_info(
     config: Configuration,
 ) -> AccountInfo:
     """Read in all accounts to export."""
-    account_info = AccountInfo()
+    account_info = AccountInfo(
+        accounts_to_export_names=read_exportable_accounts(config),
+    )
 
     with config.accounts_read_csv.open() as fd:
         reader = csv.DictReader(fd)
@@ -40,9 +51,6 @@ def read_account_info(
                 account_supplementary_name=row["account_supplementary_name"],
             )
             account_info.accounts_to_read_names.append(row["name"])
-    with config.accounts_export_csv.open() as fd:
-        for line in fd.readlines():
-            account_info.accounts_to_export_names.append(line.strip())
 
     return account_info
 

@@ -100,7 +100,7 @@ SplitStore = Dict[str, Split]
 JournalEntries = List[JournalEntry]
 TransactionSplits = List[List[Split]]
 
-NamesToRead = List[str]
+AccountNames = List[str]
 
 
 @dataclass
@@ -142,8 +142,8 @@ AccountLinks = Dict[str, AccountLink]
 class AccountInfo:
     """Contains information about accounts to process and export."""
 
-    accounts_to_read_names: NamesToRead = field(default_factory=list)
-    accounts_to_export_names: NamesToRead = field(default_factory=list)
+    accounts_to_read_names: AccountNames = field(default_factory=list)
+    accounts_to_export_names: AccountNames = field(default_factory=list)
     accounts_to_read_struct: AccountLinks = field(default_factory=dict)
 
 

@@ -14,10 +14,10 @@ from typing import (
 from .types import (
     Account,
     AccountLinks,
+    AccountNames,
     AccountSequence,
     AccountStore,
     Configuration,
-    NamesToRead,
     Split,
     SplitStore,
     Transaction,
@@ -52,9 +52,9 @@ def dict_factory(cursor: sqlite3.Cursor, row: Sequence[str]) -> Dict[str, str]:
 def get_accounts(
     con: sqlite3.Connection,
     accounts_to_read: AccountSequence,
-    accounts_to_read_names: NamesToRead,
+    accounts_to_read_names: AccountNames,
     accounts_to_export: AccountSequence,
-    accounts_to_export_names: NamesToRead,
+    accounts_to_export_names: AccountNames,
     accounts_to_read_struct: AccountLinks,
     accounts: AccountStore,
 ) -> None:
