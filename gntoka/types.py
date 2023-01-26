@@ -97,6 +97,7 @@ AccountSequence = List[Account]
 TransactionStore = Dict[str, Transaction]
 SplitStore = Dict[str, Split]
 JournalEntries = List[JournalEntry]
+TransactionSplits = List[List[Split]]
 
 NamesToRead = List[str]
 WhatIsThis = Dict[str, Dict[str, str]]

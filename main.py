@@ -37,6 +37,7 @@ from gntoka.types import (
     JournalEntries,
     JournalEntry,
     Split,
+    TransactionSplits,
     WhatIsThis,
 )
 
@@ -54,48 +55,13 @@ def is_exportable(accounts: Accounts, splits: Iterable[Split]) -> bool:
     )
 
 
-def main(config: Configuration) -> None:
-    """Run program."""
-    con = db.open_connection(config)
-
-    account_names = AccountNames()
-    accounts = Accounts()
-
-    accounts_to_read_struct: WhatIsThis = {}
-
-    read_accounts(
-        config,
-        account_names.accounts_to_read_names,
-        account_names.accounts_to_export_names,
-        accounts_to_read_struct,
-    )
-
-    db_contents = DbContents()
-
-    get_accounts(
-        con,
-        accounts.accounts_to_read,
-        account_names.accounts_to_read_names,
-        accounts.accounts_to_export,
-        account_names.accounts_to_export_names,
-        accounts_to_read_struct,
-        db_contents.accounts,
-    )
-    get_transactions(con, db_contents.transactions)
-    get_splits(
-        con,
-        accounts.accounts_to_read,
-        db_contents.accounts,
-        db_contents.transactions,
-        db_contents.splits,
-    )
-    populate_transaction_splits(db_contents)
+def build_journal(
+    accounts: Accounts, transaction_splits_values: TransactionSplits
+) -> JournalEntries:
+    """Build a journal."""
+    account_journal: JournalEntries = []
 
     counter = count(start=1)
-    transaction_splits_values = list(db_contents.transaction_splits.values())
-    transaction_splits_values.sort(key=lambda tx: tx[0].transaction.date)
-
-    account_journal: JournalEntries = []
 
     for tx in transaction_splits_values:
         if not is_exportable(accounts, tx):
@@ -182,6 +148,51 @@ def main(config: Configuration) -> None:
             account_journal.append(d)
 
     account_journal.sort(key=lambda a: a.伝票日付)
+    return account_journal
+
+
+def main(config: Configuration) -> None:
+    """Run program."""
+    con = db.open_connection(config)
+
+    account_names = AccountNames()
+    accounts = Accounts()
+
+    accounts_to_read_struct: WhatIsThis = {}
+
+    read_accounts(
+        config,
+        account_names.accounts_to_read_names,
+        account_names.accounts_to_export_names,
+        accounts_to_read_struct,
+    )
+
+    db_contents = DbContents()
+
+    get_accounts(
+        con,
+        accounts.accounts_to_read,
+        account_names.accounts_to_read_names,
+        accounts.accounts_to_export,
+        account_names.accounts_to_export_names,
+        accounts_to_read_struct,
+        db_contents.accounts,
+    )
+    get_transactions(con, db_contents.transactions)
+    get_splits(
+        con,
+        accounts.accounts_to_read,
+        db_contents.accounts,
+        db_contents.transactions,
+        db_contents.splits,
+    )
+    populate_transaction_splits(db_contents)
+
+    transaction_splits_values: TransactionSplits
+    transaction_splits_values = list(db_contents.transaction_splits.values())
+    transaction_splits_values.sort(key=lambda tx: tx[0].transaction.date)
+
+    account_journal: JournalEntries = []
     entry_dicts = [
         serialize.serialize_journal_entry(e) for e in account_journal
     ]
