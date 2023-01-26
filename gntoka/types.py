@@ -14,7 +14,6 @@ from pathlib import (
 from typing import (
     Dict,
     List,
-    Sequence,
 )
 
 
@@ -95,8 +94,9 @@ AccountSequence = List[Account]
 TransactionStore = Dict[str, Transaction]
 SplitStore = Dict[str, Split]
 JournalEntries = List[JournalEntry]
+JournalEntriesDict = List[Dict[str, str]]
 
-NamesToRead = Sequence[str]
+NamesToRead = List[str]
 WhatIsThis = Dict[str, Dict[str, str]]
 
 

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Main module."""
 import argparse
-import csv
 import sqlite3
 from collections import (
     defaultdict,
@@ -28,6 +27,10 @@ from typing import (
 )
 
 import toml
+from gntoka.csv import (
+    read_accounts,
+    write_journal_entries,
+)
 from gntoka.db import (
     get_accounts,
     get_splits,
@@ -38,22 +41,14 @@ from gntoka.types import (
     AccountStore,
     Configuration,
     JournalEntries,
+    JournalEntriesDict,
     JournalEntry,
+    NamesToRead,
     Split,
     SplitStore,
     TransactionStore,
     WhatIsThis,
 )
-
-
-class KaikeoDialect(csv.Dialect):
-    """CSV dialect for kaikeio."""
-
-    delimiter = ","
-    doublequote = True
-    quotechar = '"'
-    quoting = csv.QUOTE_ALL
-    lineterminator = "\r\n"
 
 
 def dict_factory(cursor: sqlite3.Cursor, row: Sequence[str]) -> Dict[str, str]:
@@ -69,25 +64,13 @@ transactions: TransactionStore = {}
 splits: SplitStore = {}
 
 accounts_to_read: AccountSequence = []
-accounts_to_read_names = []
+accounts_to_read_names: NamesToRead = []
 accounts_to_read_struct: WhatIsThis = {}
 accounts_to_export: AccountSequence = []
-accounts_to_export_names = []
+accounts_to_export_names: NamesToRead = []
 
 transaction_splits = defaultdict(list)
 account_journal: JournalEntries = []
-
-
-def read_accounts(config: Configuration) -> None:
-    """Read in all accounts to export."""
-    with open(config.accounts_read_csv) as fd:
-        reader = csv.DictReader(fd)
-        for row in reader:
-            accounts_to_read_struct[row["name"]] = row
-            accounts_to_read_names.append(row["name"])
-    with open(config.accounts_export_csv) as fd:
-        for line in fd.readlines():
-            accounts_to_export_names.append(line.strip())
 
 
 def populate_transaction_splits() -> None:
@@ -118,7 +101,12 @@ def format_date(d: date) -> str:
 
 def main(config: Configuration) -> None:
     """Run program."""
-    read_accounts(config)
+    read_accounts(
+        config,
+        accounts_to_read_names,
+        accounts_to_export_names,
+        accounts_to_read_struct,
+    )
 
     con: sqlite3.Connection = sqlite3.connect(config.gnucash_db)
     con.row_factory = dict_factory
@@ -223,16 +211,8 @@ def main(config: Configuration) -> None:
             account_journal.append(d)
 
     account_journal.sort(key=lambda a: a.伝票日付)
-    entry_dicts = [asdict(e) for e in account_journal]
-    with open(config.journal_out_csv, "w", encoding="shift_jis") as fd:
-        writer = csv.DictWriter(
-            fd,
-            list(entry_dicts[0].keys()),
-            dialect=KaikeoDialect,
-        )
-        writer.writeheader()
-        for entry_dict in entry_dicts:
-            writer.writerow(entry_dict)
+    entry_dicts: JournalEntriesDict = [asdict(e) for e in account_journal]
+    write_journal_entries(config, entry_dicts)
 
 
 if __name__ == "__main__":
