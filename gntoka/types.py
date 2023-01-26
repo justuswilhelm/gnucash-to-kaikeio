@@ -139,7 +139,7 @@ AccountLinks = Dict[str, AccountLink]
 
 
 @dataclass
-class AccountNames:
+class AccountInformation:
     """Contains information about accounts to process and export."""
 
     accounts_to_read_names: NamesToRead = field(default_factory=list)

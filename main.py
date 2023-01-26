@@ -30,7 +30,7 @@ from gntoka.db import (
     get_transactions,
 )
 from gntoka.types import (
-    AccountNames,
+    AccountInformation,
     Accounts,
     Configuration,
     DbContents,
@@ -154,7 +154,7 @@ def main(config: Configuration) -> None:
     """Run program."""
     con = db.open_connection(config)
 
-    account_names = AccountNames()
+    account_names = AccountInformation()
     accounts = Accounts()
 
     read_accounts(
