@@ -45,8 +45,6 @@ from gntoka.types import (
 
 accounts_to_read_struct: WhatIsThis = {}
 
-account_journal: JournalEntries = []
-
 
 def populate_transaction_splits(db_contents: DbContents) -> None:
     """Populate transaction_splits."""
@@ -114,6 +112,9 @@ def main(config: Configuration) -> None:
     counter = count(start=1)
     transaction_splits_values = list(db_contents.transaction_splits.values())
     transaction_splits_values.sort(key=lambda tx: tx[0].transaction.date)
+
+    account_journal: JournalEntries = []
+
     for tx in transaction_splits_values:
         if not is_exportable(accounts, tx):
             continue
