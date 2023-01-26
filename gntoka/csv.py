@@ -1,9 +1,14 @@
 """CSV related functionality."""
 import csv
+from typing import (
+    Iterable,
+)
 
+from . import (
+    serialize,
+)
 from .types import (
     Configuration,
-    JournalEntriesDict,
     NamesToRead,
     WhatIsThis,
 )
@@ -37,13 +42,13 @@ def read_accounts(
 
 
 def write_journal_entries(
-    config: Configuration, entry_dicts: JournalEntriesDict
+    config: Configuration, entry_dicts: Iterable[serialize.JournalEntryDict]
 ) -> None:
     """Write the journal entries."""
     with open(config.journal_out_csv, "w", encoding="shift_jis") as fd:
         writer = csv.DictWriter(
             fd,
-            list(entry_dicts[0].keys()),
+            serialize.journal_entry_columns,
             dialect=KaikeoDialect,
         )
         writer.writeheader()

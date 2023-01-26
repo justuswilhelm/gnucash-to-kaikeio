@@ -5,9 +5,6 @@ import sqlite3
 from collections import (
     defaultdict,
 )
-from dataclasses import (
-    asdict,
-)
 from datetime import (
     date,
 )
@@ -27,6 +24,9 @@ from typing import (
 )
 
 import toml
+from gntoka import (
+    serialize,
+)
 from gntoka.csv import (
     read_accounts,
     write_journal_entries,
@@ -41,7 +41,6 @@ from gntoka.types import (
     AccountStore,
     Configuration,
     JournalEntries,
-    JournalEntriesDict,
     JournalEntry,
     NamesToRead,
     Split,
@@ -211,7 +210,9 @@ def main(config: Configuration) -> None:
             account_journal.append(d)
 
     account_journal.sort(key=lambda a: a.伝票日付)
-    entry_dicts: JournalEntriesDict = [asdict(e) for e in account_journal]
+    entry_dicts = [
+        serialize.serialize_journal_entry(e) for e in account_journal
+    ]
     write_journal_entries(config, entry_dicts)
 
 
