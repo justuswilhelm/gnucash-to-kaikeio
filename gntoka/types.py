@@ -4,6 +4,7 @@ from collections import (
 )
 from dataclasses import (
     dataclass,
+    field,
 )
 from datetime import (
     date,
@@ -117,23 +118,25 @@ class Configuration:
 class DbContents:
     """Store everything we have read from GnuCash."""
 
-    accounts: AccountStore = {}
-    transactions: TransactionStore = {}
-    splits: SplitStore = {}
-    transaction_splits: Dict[str, List[Split]] = defaultdict(list)
+    accounts: AccountStore = field(default_factory=dict)
+    transactions: TransactionStore = field(default_factory=dict)
+    splits: SplitStore = field(default_factory=dict)
+    transaction_splits: Dict[str, List[Split]] = field(
+        default_factory=lambda: defaultdict(list)
+    )
 
 
 @dataclass
 class AccountNames:
     """Contains information about accounts to process and export."""
 
-    accounts_to_read_names: NamesToRead = []
-    accounts_to_export_names: NamesToRead = []
+    accounts_to_read_names: NamesToRead = field(default_factory=list)
+    accounts_to_export_names: NamesToRead = field(default_factory=list)
 
 
 @dataclass
 class Accounts:
     """Contains all accounts."""
 
-    accounts_to_read: AccountSequence = []
-    accounts_to_export: AccountSequence = []
+    accounts_to_read: AccountSequence = field(default_factory=list)
+    accounts_to_export: AccountSequence = field(default_factory=list)
