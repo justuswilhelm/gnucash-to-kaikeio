@@ -1,4 +1,8 @@
 """Utility functions."""
+from datetime import (
+    date,
+)
+
 from .types import (
     Account,
     AccountStore,
@@ -13,3 +17,8 @@ def account_name(account: Account, accounts: AccountStore) -> str:
     if parent_name == "Root Account":
         return account._name
     return parent_name + ":" + account._name
+
+
+def format_date(d: date) -> str:
+    """Format date."""
+    return d.strftime("%Y/%m/%d")

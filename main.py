@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 """Main module."""
 import argparse
-from datetime import (
-    date,
-)
 from decimal import (
     Decimal,
 )
@@ -21,6 +18,7 @@ import toml
 from gntoka import (
     db,
     serialize,
+    util,
 )
 from gntoka.csv import (
     read_accounts,
@@ -64,11 +62,6 @@ def get_debits(splits: Iterable[Split]) -> Iterable[Split]:
 def get_credits(splits: Iterable[Split]) -> Iterable[Split]:
     """Get all credits from a split."""
     return filter(lambda split: split.value < 0, splits)
-
-
-def format_date(d: date) -> str:
-    """Format date."""
-    return d.strftime("%Y/%m/%d")
 
 
 def main(config: Configuration) -> None:
@@ -148,7 +141,7 @@ def main(config: Configuration) -> None:
             d = JournalEntry(
                 伝票番号=str(number),
                 行番号="1",
-                伝票日付=format_date(entry.transaction.date),
+                伝票日付=util.format_date(entry.transaction.date),
                 借方科目コード=entry.account.account
                 if swap
                 else smaller_side.account.account,
