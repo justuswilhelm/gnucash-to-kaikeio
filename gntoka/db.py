@@ -56,13 +56,13 @@ def get_accounts(
     accounts_to_export: AccountSequence,
     exportable_account_names: AccountNames,
     importable_account_links: AccountLinks,
-    accounts: AccountStore,
+    account_store: AccountStore,
 ) -> None:
     """Get all accounts."""
     cur = con.cursor()
     cur.execute(select_accounts)
     for row in cur.fetchall():
-        accounts[row["guid"]] = Account(
+        account_store[row["guid"]] = Account(
             guid=row["guid"],
             _name=row["name"],
             parent_guid=row["parent_guid"],
@@ -73,8 +73,8 @@ def get_accounts(
             account_supplementary_name="",
         )
 
-    for account in accounts.values():
-        acc_name = account_name(account, accounts)
+    for account in account_store.values():
+        acc_name = account_name(account, account_store)
         if acc_name in importable_account_names:
             accounts_to_read.append(account)
         if acc_name in exportable_account_names:
@@ -109,7 +109,7 @@ def get_transactions(
 def get_splits(
     con: sqlite3.Connection,
     accounts_to_read: AccountSequence,
-    accounts: AccountStore,
+    account_store: AccountStore,
     transactions: TransactionStore,
     splits: SplitStore,
 ) -> None:
@@ -117,7 +117,7 @@ def get_splits(
     cur = con.cursor()
     cur.execute(select_splits)
     for row in cur.fetchall():
-        account = accounts[row["account_guid"]]
+        account = account_store[row["account_guid"]]
         split = Split(
             guid=row["guid"],
             account=account,

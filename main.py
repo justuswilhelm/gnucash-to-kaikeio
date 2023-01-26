@@ -42,7 +42,7 @@ from gntoka.types import (
 
 def populate_transaction_splits(db_contents: DbContents) -> None:
     """Populate transaction_splits."""
-    for split in db_contents.splits.values():
+    for split in db_contents.split_store.values():
         db_contents.transaction_splits[split.transaction.guid].append(split)
 
 
@@ -168,15 +168,15 @@ def main(config: Configuration) -> None:
         accounts.accounts_to_export,
         account_info.exportable_account_names,
         account_info.importable_account_links,
-        db_contents.accounts,
+        db_contents.account_store,
     )
-    get_transactions(con, db_contents.transactions)
+    get_transactions(con, db_contents.transaction_store)
     get_splits(
         con,
         accounts.accounts_to_read,
-        db_contents.accounts,
-        db_contents.transactions,
-        db_contents.splits,
+        db_contents.account_store,
+        db_contents.transaction_store,
+        db_contents.split_store,
     )
     populate_transaction_splits(db_contents)
 
