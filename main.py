@@ -180,9 +180,12 @@ def main(config: Configuration) -> None:
     )
     populate_transaction_splits(db_contents)
 
-    transaction_splits_values: TransactionSplits
-    transaction_splits_values = list(db_contents.transaction_splits.values())
-    transaction_splits_values.sort(key=lambda tx: tx[0].transaction.date)
+    # XXX dead code?
+    # transaction_splits_values: TransactionSplits
+    # transaction_splits_values = sorted(
+    #     db_contents.transaction_splits.values(),
+    #     key=lambda tx: tx[0].transaction.date,
+    # )
 
     account_journal: JournalEntries = []
     entry_dicts = [
