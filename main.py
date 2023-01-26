@@ -180,14 +180,16 @@ def main(config: Configuration) -> None:
     )
     populate_transaction_splits(db_contents)
 
-    # XXX dead code?
-    # transaction_splits_values: TransactionSplits
-    # transaction_splits_values = sorted(
-    #     db_contents.transaction_splits.values(),
-    #     key=lambda tx: tx[0].transaction.date,
-    # )
+    transaction_splits_values: TransactionSplits
+    transaction_splits_values = sorted(
+        db_contents.transaction_splits.values(),
+        key=lambda tx: tx[0].transaction.date,
+    )
 
-    account_journal: JournalEntries = []
+    account_journal: JournalEntries = build_journal(
+        accounts,
+        transaction_splits_values,
+    )
     entry_dicts = [
         serialize.serialize_journal_entry(e) for e in account_journal
     ]
