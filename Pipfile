@@ -11,6 +11,7 @@ xlsxwriter = "*"
 flake8 = "*"
 black = "*"
 flake8-black = "*"
+mypy = "*"
 
 [requires]
 python_version = "3.9"

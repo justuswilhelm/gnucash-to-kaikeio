@@ -17,6 +17,12 @@ import csv
 import argparse
 import sqlite3
 
+from typing import (
+    Dict,
+    Iterable,
+    Sequence,
+)
+
 select_accounts = """
 SELECT * FROM accounts
 """
@@ -43,7 +49,7 @@ class KaikeoDialect(csv.Dialect):
     lineterminator = "\r\n"
 
 
-def dict_factory(cursor, row):
+def dict_factory(cursor: sqlite3.Cursor, row: Sequence[str]) -> Dict[str, str]:
     d = {}
     for idx, col in enumerate(cursor.description):
         d[col[0]] = row[idx]
@@ -63,7 +69,7 @@ class Account:
     account_supplementary_name: str
 
     @property
-    def name(self):
+    def name(self) -> str:
         """Return full name."""
         if not self.parent_guid:
             return self._name
@@ -110,7 +116,7 @@ class JournalEntry:
     借方課税区分: str
     借方事業分類: str
     借方消費税処理方法: str
-    借方消費税率: Decimal
+    借方消費税率: str
     借方金額: Decimal
     借方消費税額: Decimal
     貸方科目コード: str
@@ -122,7 +128,7 @@ class JournalEntry:
     貸方課税区分: str
     貸方事業分類: str
     貸方消費税処理方法: str
-    貸方消費税率: Decimal
+    貸方消費税率: str
     貸方金額: Decimal
     貸方消費税額: Decimal
     摘要: str
@@ -139,7 +145,7 @@ splits = {}
 
 accounts_to_read = []
 accounts_to_read_names = []
-accounts_to_read_struct = {}
+accounts_to_read_struct: Dict[str, Dict[str, str]] = {}
 accounts_to_export = []
 accounts_to_export_names = []
 
@@ -147,7 +153,7 @@ transaction_splits = defaultdict(list)
 account_journal = []
 
 
-def get_accounts(con):
+def get_accounts(con: sqlite3.Connection) -> None:
     """Get all accounts."""
     cur = con.cursor()
     cur.execute(select_accounts)
@@ -181,7 +187,7 @@ def get_accounts(con):
         ]
 
 
-def get_transactions(con):
+def get_transactions(con: sqlite3.Connection) -> None:
     """Get all transactions."""
     cur = con.cursor()
     cur.execute(select_transactions)
@@ -193,7 +199,7 @@ def get_transactions(con):
         )
 
 
-def get_splits(con):
+def get_splits(con: sqlite3.Connection) -> None:
     """Get all splits."""
     cur = con.cursor()
     cur.execute(select_splits)
@@ -210,7 +216,7 @@ def get_splits(con):
             splits[row["guid"]] = split
 
 
-def read_accounts():
+def read_accounts() -> None:
     """Read in all accounts to export."""
     with open("accounts.csv") as fd:
         reader = csv.DictReader(fd)
@@ -222,37 +228,37 @@ def read_accounts():
             accounts_to_export_names.append(line.strip())
 
 
-def populate_transaction_splits():
+def populate_transaction_splits() -> None:
     """Populate transaction_splits."""
     for split in splits.values():
         transaction_splits[split.transaction.guid].append(split)
 
 
-def is_exportable(splits):
+def is_exportable(splits: Iterable[Split]) -> bool:
     """Decide whether a transaction with its splits is to be exported."""
     return any(split.account in accounts_to_export for split in splits)
 
 
-def get_debits(splits):
+def get_debits(splits: Iterable[Split]) -> Iterable[Split]:
     """Get all debits from a split."""
     return filter(lambda split: split.value > 0, splits)
 
 
-def get_credits(splits):
+def get_credits(splits: Iterable[Split]) -> Iterable[Split]:
     """Get all credits from a split."""
     return filter(lambda split: split.value < 0, splits)
 
 
-def format_date(date):
+def format_date(d: date) -> str:
     """Format date."""
-    return date.strftime("%Y/%m/%d")
+    return d.strftime("%Y/%m/%d")
 
 
-def main(args):
+def main(args: argparse.Namespace) -> None:
     """Main function."""
     read_accounts()
 
-    con = sqlite3.connect(args.infile)
+    con: sqlite3.Connection = sqlite3.connect(args.infile)
     con.row_factory = dict_factory
     get_accounts(con)
     get_transactions(con)
@@ -316,7 +322,7 @@ def main(args):
                 借方消費税処理方法="3",
                 借方消費税率="0%",
                 借方金額=value,
-                借方消費税額="0",
+                借方消費税額=Decimal("0"),
                 貸方科目コード=smaller_side.account.account
                 if swap
                 else entry.account.account,
@@ -336,7 +342,7 @@ def main(args):
                 貸方消費税処理方法="3",
                 貸方消費税率="0%",
                 貸方金額=value,
-                貸方消費税額="0",
+                貸方消費税額=Decimal("0"),
                 摘要="",
                 補助摘要="",
                 メモ=memo,
@@ -348,16 +354,16 @@ def main(args):
 
     account_journal.sort(key=lambda a: a.伝票日付)
     path = (out_dir / "output").with_suffix(".txt")
-    entries = [asdict(entry) for entry in account_journal]
+    entry_dicts = [asdict(e) for e in account_journal]
     with open(path, "w", encoding="shift_jis") as fd:
         writer = csv.DictWriter(
             fd,
-            list(entries[0].keys()),
+            list(entry_dicts[0].keys()),
             dialect=KaikeoDialect,
         )
         writer.writeheader()
-        for entry in entries:
-            writer.writerow(entry)
+        for entry_dict in entry_dicts:
+            writer.writerow(entry_dict)
 
 
 if __name__ == "__main__":
