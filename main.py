@@ -24,29 +24,23 @@ from pathlib import (
 from typing import (
     Dict,
     Iterable,
-    Mapping,
     Sequence,
 )
 
+from gntoka.db import (
+    get_accounts,
+    get_splits,
+    get_transactions,
+)
 from gntoka.types import (
-    Account,
+    AccountSequence,
+    AccountStore,
     JournalEntry,
     Split,
-    Transaction,
+    SplitStore,
+    TransactionStore,
+    WhatIsThis,
 )
-
-
-select_accounts = """
-SELECT * FROM accounts
-"""
-
-select_transactions = """
-SELECT * FROM transactions
-"""
-
-select_splits = """
-SELECT * FROM splits
-"""
 
 
 out_dir = Path("out")
@@ -70,92 +64,18 @@ def dict_factory(cursor: sqlite3.Cursor, row: Sequence[str]) -> Dict[str, str]:
     return d
 
 
-accounts = {}
-transactions = {}
-splits = {}
+accounts: AccountStore = {}
+transactions: TransactionStore = {}
+splits: SplitStore = {}
 
-accounts_to_read = []
+accounts_to_read: AccountSequence = []
 accounts_to_read_names = []
-accounts_to_read_struct: Dict[str, Dict[str, str]] = {}
-accounts_to_export = []
+accounts_to_read_struct: WhatIsThis = {}
+accounts_to_export: AccountSequence = []
 accounts_to_export_names = []
 
 transaction_splits = defaultdict(list)
 account_journal = []
-
-
-def account_name(account: Account, accounts: Mapping[str, Account]) -> str:
-    """Return full name."""
-    if not account.parent_guid:
-        return account._name
-    parent_name = account_name(accounts[account.parent_guid], accounts)
-    if parent_name == "Root Account":
-        return account._name
-    return parent_name + ":" + account._name
-
-
-def get_accounts(con: sqlite3.Connection) -> None:
-    """Get all accounts."""
-    cur = con.cursor()
-    cur.execute(select_accounts)
-    for row in cur.fetchall():
-        accounts[row["guid"]] = Account(
-            guid=row["guid"],
-            _name=row["name"],
-            parent_guid=row["parent_guid"],
-            # Set them to empty for now
-            account="",
-            account_supplementary="",
-            account_name="",
-            account_supplementary_name="",
-        )
-
-    for account in accounts.values():
-        acc_name = account_name(account, accounts)
-        if acc_name in accounts_to_read_names:
-            accounts_to_read.append(account)
-        if acc_name in accounts_to_export_names:
-            accounts_to_export.append(account)
-        account_additional = accounts_to_read_struct.get(acc_name)
-        if not account_additional:
-            continue
-        account.account = account_additional["account"]
-        account.account_supplementary = account_additional[
-            "account_supplementary"
-        ]
-        account.account_name = account_additional["account_name"]
-        account.account_supplementary_name = account_additional[
-            "account_supplementary_name"
-        ]
-
-
-def get_transactions(con: sqlite3.Connection) -> None:
-    """Get all transactions."""
-    cur = con.cursor()
-    cur.execute(select_transactions)
-    for row in cur.fetchall():
-        transactions[row["guid"]] = Transaction(
-            guid=row["guid"],
-            date=date.fromisoformat(row["post_date"].split(" ")[0]),
-            description=row["description"],
-        )
-
-
-def get_splits(con: sqlite3.Connection) -> None:
-    """Get all splits."""
-    cur = con.cursor()
-    cur.execute(select_splits)
-    for row in cur.fetchall():
-        account = accounts[row["account_guid"]]
-        split = Split(
-            guid=row["guid"],
-            account=account,
-            transaction=transactions[row["tx_guid"]],
-            memo=row["memo"],
-            value=Decimal(row["value_num"]),
-        )
-        if account in accounts_to_read:
-            splits[row["guid"]] = split
 
 
 def read_accounts() -> None:
@@ -202,9 +122,17 @@ def main(args: argparse.Namespace) -> None:
 
     con: sqlite3.Connection = sqlite3.connect(args.infile)
     con.row_factory = dict_factory
-    get_accounts(con)
-    get_transactions(con)
-    get_splits(con)
+    get_accounts(
+        con,
+        accounts_to_read,
+        accounts_to_read_names,
+        accounts_to_export,
+        accounts_to_export_names,
+        accounts_to_read_struct,
+        accounts,
+    )
+    get_transactions(con, transactions)
+    get_splits(con, accounts_to_read, accounts, transactions, splits)
     populate_transaction_splits()
 
     counter = count(start=1)

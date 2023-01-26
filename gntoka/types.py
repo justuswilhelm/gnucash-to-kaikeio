@@ -8,6 +8,11 @@ from datetime import (
 from decimal import (
     Decimal,
 )
+from typing import (
+    Dict,
+    List,
+    Sequence,
+)
 
 
 @dataclass
@@ -80,3 +85,12 @@ class JournalEntry:
     付箋１: str
     付箋２: str
     伝票種別: str
+
+
+AccountStore = Dict[str, Account]
+AccountSequence = List[Account]
+TransactionStore = Dict[str, Transaction]
+SplitStore = Dict[str, Split]
+
+NamesToRead = Sequence[str]
+WhatIsThis = Dict[str, Dict[str, str]]
