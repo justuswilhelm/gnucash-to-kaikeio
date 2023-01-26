@@ -18,6 +18,7 @@ from pathlib import (
 from typing import (
     Dict,
     List,
+    Mapping,
 )
 
 
@@ -135,7 +136,7 @@ class AccountLink:
     account_supplementary_name: str
 
 
-AccountLinks = Dict[str, AccountLink]
+AccountLinks = Mapping[str, AccountLink]
 
 
 @dataclass
