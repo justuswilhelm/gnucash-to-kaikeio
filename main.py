@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Main module."""
 import argparse
-import sqlite3
 from collections import (
     defaultdict,
 )
@@ -18,13 +17,12 @@ from pathlib import (
     Path,
 )
 from typing import (
-    Dict,
     Iterable,
-    Sequence,
 )
 
 import toml
 from gntoka import (
+    db,
     serialize,
 )
 from gntoka.csv import (
@@ -48,14 +46,6 @@ from gntoka.types import (
     TransactionStore,
     WhatIsThis,
 )
-
-
-def dict_factory(cursor: sqlite3.Cursor, row: Sequence[str]) -> Dict[str, str]:
-    """Package a cursor row in a dict."""
-    d = {}
-    for idx, col in enumerate(cursor.description):
-        d[col[0]] = row[idx]
-    return d
 
 
 accounts: AccountStore = {}
@@ -100,6 +90,7 @@ def format_date(d: date) -> str:
 
 def main(config: Configuration) -> None:
     """Run program."""
+    con = db.open_connection(config)
     read_accounts(
         config,
         accounts_to_read_names,
@@ -107,8 +98,6 @@ def main(config: Configuration) -> None:
         accounts_to_read_struct,
     )
 
-    con: sqlite3.Connection = sqlite3.connect(config.gnucash_db)
-    con.row_factory = dict_factory
     get_accounts(
         con,
         accounts_to_read,

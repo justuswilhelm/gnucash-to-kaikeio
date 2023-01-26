@@ -6,11 +6,16 @@ from datetime import (
 from decimal import (
     Decimal,
 )
+from typing import (
+    Dict,
+    Sequence,
+)
 
 from .types import (
     Account,
     AccountSequence,
     AccountStore,
+    Configuration,
     NamesToRead,
     Split,
     SplitStore,
@@ -34,6 +39,14 @@ SELECT * FROM transactions
 select_splits = """
 SELECT * FROM splits
 """
+
+
+def dict_factory(cursor: sqlite3.Cursor, row: Sequence[str]) -> Dict[str, str]:
+    """Package a cursor row in a dict."""
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row[idx]
+    return d
 
 
 def get_accounts(
@@ -114,3 +127,10 @@ def get_splits(
         )
         if account in accounts_to_read:
             splits[row["guid"]] = split
+
+
+def open_connection(config: Configuration) -> sqlite3.Connection:
+    """Open a connection to the db."""
+    con = sqlite3.connect(config.gnucash_db)
+    con.row_factory = dict_factory
+    return con
