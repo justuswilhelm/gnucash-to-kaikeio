@@ -1,0 +1,11 @@
+# TODO
+
+- Add isort
+- Add py docstring
+- Use separate types module
+- Put csv writing in separate module
+- Clean up pipfile (pandas/xlsxwriter needed?)
+- Add py test
+- Add sample config / sample input and output
+- Use TOML
+- Add bin/format.sh
