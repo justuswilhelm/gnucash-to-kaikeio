@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 """Main module."""
 import argparse
-from collections import (
-    defaultdict,
-)
 from datetime import (
     date,
 )
@@ -36,21 +33,15 @@ from gntoka.db import (
 )
 from gntoka.types import (
     AccountSequence,
-    AccountStore,
     Configuration,
+    DbContents,
     JournalEntries,
     JournalEntry,
     NamesToRead,
     Split,
-    SplitStore,
-    TransactionStore,
     WhatIsThis,
 )
 
-
-accounts: AccountStore = {}
-transactions: TransactionStore = {}
-splits: SplitStore = {}
 
 accounts_to_read: AccountSequence = []
 accounts_to_read_names: NamesToRead = []
@@ -58,14 +49,13 @@ accounts_to_read_struct: WhatIsThis = {}
 accounts_to_export: AccountSequence = []
 accounts_to_export_names: NamesToRead = []
 
-transaction_splits = defaultdict(list)
 account_journal: JournalEntries = []
 
 
-def populate_transaction_splits() -> None:
+def populate_transaction_splits(db_contents: DbContents) -> None:
     """Populate transaction_splits."""
-    for split in splits.values():
-        transaction_splits[split.transaction.guid].append(split)
+    for split in db_contents.splits.values():
+        db_contents.transaction_splits[split.transaction.guid].append(split)
 
 
 def is_exportable(splits: Iterable[Split]) -> bool:
@@ -98,6 +88,8 @@ def main(config: Configuration) -> None:
         accounts_to_read_struct,
     )
 
+    db_contents = DbContents()
+
     get_accounts(
         con,
         accounts_to_read,
@@ -105,14 +97,20 @@ def main(config: Configuration) -> None:
         accounts_to_export,
         accounts_to_export_names,
         accounts_to_read_struct,
-        accounts,
+        db_contents.accounts,
     )
-    get_transactions(con, transactions)
-    get_splits(con, accounts_to_read, accounts, transactions, splits)
-    populate_transaction_splits()
+    get_transactions(con, db_contents.transactions)
+    get_splits(
+        con,
+        accounts_to_read,
+        db_contents.accounts,
+        db_contents.transactions,
+        db_contents.splits,
+    )
+    populate_transaction_splits(db_contents)
 
     counter = count(start=1)
-    transaction_splits_values = list(transaction_splits.values())
+    transaction_splits_values = list(db_contents.transaction_splits.values())
     transaction_splits_values.sort(key=lambda tx: tx[0].transaction.date)
     for tx in transaction_splits_values:
         if not is_exportable(tx):

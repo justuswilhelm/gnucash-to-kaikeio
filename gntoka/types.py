@@ -1,4 +1,7 @@
 """Types used in application."""
+from collections import (
+    defaultdict,
+)
 from dataclasses import (
     dataclass,
 )
@@ -107,3 +110,13 @@ class Configuration:
     accounts_read_csv: Path
     accounts_export_csv: Path
     journal_out_csv: Path
+
+
+@dataclass
+class DbContents:
+    """Store everything we have read from GnuCash."""
+
+    accounts: AccountStore = {}
+    transactions: TransactionStore = {}
+    splits: SplitStore = {}
+    transaction_splits: Dict[str, List[Split]] = defaultdict(list)
