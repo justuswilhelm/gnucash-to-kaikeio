@@ -56,6 +56,7 @@ class KaikeoDialect(csv.Dialect):
 
 
 def dict_factory(cursor: sqlite3.Cursor, row: Sequence[str]) -> Dict[str, str]:
+    """Package a cursor row in a dict."""
     d = {}
     for idx, col in enumerate(cursor.description):
         d[col[0]] = row[idx]
@@ -106,9 +107,7 @@ class Split:
 
 @dataclass
 class JournalEntry:
-    """
-    A journal entry.
-    """
+    """A journal entry."""
 
     伝票番号: str
     行番号: str
@@ -261,7 +260,7 @@ def format_date(d: date) -> str:
 
 
 def main(args: argparse.Namespace) -> None:
-    """Main function."""
+    """Run program."""
     read_accounts()
 
     con: sqlite3.Connection = sqlite3.connect(args.infile)
