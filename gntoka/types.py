@@ -145,7 +145,7 @@ class AccountInfo:
 
     importable_account_names: AccountNames = field(default_factory=list)
     exportable_account_names: AccountNames = field(default_factory=list)
-    accounts_to_read_struct: AccountLinks = field(default_factory=dict)
+    importable_account_links: AccountLinks = field(default_factory=dict)
 
 
 @dataclass

@@ -55,7 +55,7 @@ def get_accounts(
     importable_account_names: AccountNames,
     accounts_to_export: AccountSequence,
     exportable_account_names: AccountNames,
-    accounts_to_read_struct: AccountLinks,
+    importable_account_links: AccountLinks,
     accounts: AccountStore,
 ) -> None:
     """Get all accounts."""
@@ -79,7 +79,7 @@ def get_accounts(
             accounts_to_read.append(account)
         if acc_name in exportable_account_names:
             accounts_to_export.append(account)
-        account_additional = accounts_to_read_struct.get(acc_name)
+        account_additional = importable_account_links.get(acc_name)
         if not account_additional:
             continue
         account.account = account_additional.account
