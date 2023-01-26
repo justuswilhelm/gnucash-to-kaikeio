@@ -8,10 +8,9 @@ from . import (
     serialize,
 )
 from .types import (
+    AccountInfo,
     AccountLink,
-    AccountLinks,
     Configuration,
-    NamesToRead,
 )
 
 
@@ -25,26 +24,27 @@ class KaikeoDialect(csv.Dialect):
     lineterminator = "\r\n"
 
 
-def read_accounts(
+def read_account_info(
     config: Configuration,
-    accounts_to_read_names: NamesToRead,
-    accounts_to_export_names: NamesToRead,
-    accounts_to_read_struct: AccountLinks,
-) -> None:
+) -> AccountInfo:
     """Read in all accounts to export."""
+    account_info = AccountInfo()
+
     with open(config.accounts_read_csv) as fd:
         reader = csv.DictReader(fd)
         for row in reader:
-            accounts_to_read_struct[row["name"]] = AccountLink(
+            account_info.accounts_to_read_struct[row["name"]] = AccountLink(
                 account=row["account"],
                 account_supplementary=row["account_supplementary"],
                 account_name=row["account_name"],
                 account_supplementary_name=row["account_supplementary_name"],
             )
-            accounts_to_read_names.append(row["name"])
+            account_info.accounts_to_read_names.append(row["name"])
     with open(config.accounts_export_csv) as fd:
         for line in fd.readlines():
-            accounts_to_export_names.append(line.strip())
+            account_info.accounts_to_export_names.append(line.strip())
+
+    return account_info
 
 
 def write_journal_entries(

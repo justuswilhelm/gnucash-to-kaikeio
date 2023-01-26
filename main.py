@@ -21,7 +21,7 @@ from gntoka import (
     util,
 )
 from gntoka.csv import (
-    read_accounts,
+    read_account_info,
     write_journal_entries,
 )
 from gntoka.db import (
@@ -30,7 +30,6 @@ from gntoka.db import (
     get_transactions,
 )
 from gntoka.types import (
-    AccountInformation,
     Accounts,
     Configuration,
     DbContents,
@@ -154,14 +153,10 @@ def main(config: Configuration) -> None:
     """Run program."""
     con = db.open_connection(config)
 
-    account_names = AccountInformation()
     accounts = Accounts()
 
-    read_accounts(
+    account_info = read_account_info(
         config,
-        account_names.accounts_to_read_names,
-        account_names.accounts_to_export_names,
-        account_names.accounts_to_read_struct,
     )
 
     db_contents = DbContents()
@@ -169,10 +164,10 @@ def main(config: Configuration) -> None:
     get_accounts(
         con,
         accounts.accounts_to_read,
-        account_names.accounts_to_read_names,
+        account_info.accounts_to_read_names,
         accounts.accounts_to_export,
-        account_names.accounts_to_export_names,
-        account_names.accounts_to_read_struct,
+        account_info.accounts_to_export_names,
+        account_info.accounts_to_read_struct,
         db_contents.accounts,
     )
     get_transactions(con, db_contents.transactions)
