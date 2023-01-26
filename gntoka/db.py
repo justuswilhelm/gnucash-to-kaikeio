@@ -13,6 +13,7 @@ from typing import (
 
 from .types import (
     Account,
+    AccountLinks,
     AccountSequence,
     AccountStore,
     Configuration,
@@ -21,7 +22,6 @@ from .types import (
     SplitStore,
     Transaction,
     TransactionStore,
-    WhatIsThis,
 )
 from .util import (
     account_name,
@@ -55,7 +55,7 @@ def get_accounts(
     accounts_to_read_names: NamesToRead,
     accounts_to_export: AccountSequence,
     accounts_to_export_names: NamesToRead,
-    accounts_to_read_struct: WhatIsThis,
+    accounts_to_read_struct: AccountLinks,
     accounts: AccountStore,
 ) -> None:
     """Get all accounts."""
@@ -82,14 +82,14 @@ def get_accounts(
         account_additional = accounts_to_read_struct.get(acc_name)
         if not account_additional:
             continue
-        account.account = account_additional["account"]
-        account.account_supplementary = account_additional[
-            "account_supplementary"
-        ]
-        account.account_name = account_additional["account_name"]
-        account.account_supplementary_name = account_additional[
-            "account_supplementary_name"
-        ]
+        account.account = account_additional.account
+        account.account_supplementary = (
+            account_additional.account_supplementary
+        )
+        account.account_name = account_additional.account_name
+        account.account_supplementary_name = (
+            account_additional.account_supplementary_name
+        )
 
 
 def get_transactions(

@@ -8,9 +8,10 @@ from . import (
     serialize,
 )
 from .types import (
+    AccountLink,
+    AccountLinks,
     Configuration,
     NamesToRead,
-    WhatIsThis,
 )
 
 
@@ -28,13 +29,18 @@ def read_accounts(
     config: Configuration,
     accounts_to_read_names: NamesToRead,
     accounts_to_export_names: NamesToRead,
-    accounts_to_read_struct: WhatIsThis,
+    accounts_to_read_struct: AccountLinks,
 ) -> None:
     """Read in all accounts to export."""
     with open(config.accounts_read_csv) as fd:
         reader = csv.DictReader(fd)
         for row in reader:
-            accounts_to_read_struct[row["name"]] = row
+            accounts_to_read_struct[row["name"]] = AccountLink(
+                account=row["account"],
+                account_supplementary=row["account_supplementary"],
+                account_name=row["account_name"],
+                account_supplementary_name=row["account_supplementary_name"],
+            )
             accounts_to_read_names.append(row["name"])
     with open(config.accounts_export_csv) as fd:
         for line in fd.readlines():

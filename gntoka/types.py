@@ -101,7 +101,6 @@ JournalEntries = List[JournalEntry]
 TransactionSplits = List[List[Split]]
 
 NamesToRead = List[str]
-WhatIsThis = Dict[str, Dict[str, str]]
 
 
 @dataclass
@@ -124,6 +123,19 @@ class DbContents:
     transaction_splits: Dict[str, List[Split]] = field(
         default_factory=lambda: defaultdict(list)
     )
+
+
+@dataclass
+class AccountLink:
+    """Links GnuCash and Kaikeio accounts."""
+
+    account: str
+    account_supplementary: str
+    account_name: str
+    account_supplementary_name: str
+
+
+AccountLinks = Dict[str, AccountLink]
 
 
 @dataclass

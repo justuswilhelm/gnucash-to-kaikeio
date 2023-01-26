@@ -30,6 +30,7 @@ from gntoka.db import (
     get_transactions,
 )
 from gntoka.types import (
+    AccountLinks,
     AccountNames,
     Accounts,
     Configuration,
@@ -38,7 +39,6 @@ from gntoka.types import (
     JournalEntry,
     Split,
     TransactionSplits,
-    WhatIsThis,
 )
 
 
@@ -158,7 +158,7 @@ def main(config: Configuration) -> None:
     account_names = AccountNames()
     accounts = Accounts()
 
-    accounts_to_read_struct: WhatIsThis = {}
+    accounts_to_read_struct: AccountLinks = {}
 
     read_accounts(
         config,
