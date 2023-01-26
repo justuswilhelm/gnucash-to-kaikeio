@@ -43,9 +43,6 @@ from gntoka.types import (
 )
 
 
-accounts_to_read_struct: WhatIsThis = {}
-
-
 def populate_transaction_splits(db_contents: DbContents) -> None:
     """Populate transaction_splits."""
     for split in db_contents.splits.values():
@@ -80,6 +77,8 @@ def main(config: Configuration) -> None:
 
     account_names = AccountNames()
     accounts = Accounts()
+
+    accounts_to_read_struct: WhatIsThis = {}
 
     read_accounts(
         config,
