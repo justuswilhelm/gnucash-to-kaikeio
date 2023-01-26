@@ -13,8 +13,7 @@ from typing import (
 
 from .types import (
     Account,
-    AccountLinks,
-    AccountNames,
+    AccountInfo,
     AccountSequence,
     Configuration,
     DbContents,
@@ -49,11 +48,9 @@ def dict_factory(cursor: sqlite3.Cursor, row: Sequence[str]) -> Dict[str, str]:
 
 def get_accounts(
     con: sqlite3.Connection,
+    account_info: AccountInfo,
     accounts_to_read: AccountSequence,
-    importable_account_names: AccountNames,
     accounts_to_export: AccountSequence,
-    exportable_account_names: AccountNames,
-    importable_account_links: AccountLinks,
     db_contents: DbContents,
 ) -> None:
     """Get all accounts."""
@@ -73,11 +70,13 @@ def get_accounts(
 
     for account in db_contents.account_store.values():
         acc_name = account_name(account, db_contents.account_store)
-        if acc_name in importable_account_names:
+        if acc_name in account_info.importable_account_names:
             accounts_to_read.append(account)
-        if acc_name in exportable_account_names:
+        if acc_name in account_info.exportable_account_names:
             accounts_to_export.append(account)
-        account_additional = importable_account_links.get(acc_name)
+        account_additional = account_info.importable_account_links.get(
+            acc_name
+        )
         if not account_additional:
             continue
         account.account = account_additional.account

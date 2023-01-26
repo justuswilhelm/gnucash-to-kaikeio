@@ -163,11 +163,9 @@ def main(config: Configuration) -> None:
 
     get_accounts(
         con,
+        account_info,
         accounts.accounts_to_read,
-        account_info.importable_account_names,
         accounts.accounts_to_export,
-        account_info.exportable_account_names,
-        account_info.importable_account_links,
         db_contents,
     )
     get_transactions(con, db_contents)
