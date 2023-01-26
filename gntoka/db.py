@@ -16,12 +16,10 @@ from .types import (
     AccountLinks,
     AccountNames,
     AccountSequence,
-    AccountStore,
     Configuration,
+    DbContents,
     Split,
-    SplitStore,
     Transaction,
-    TransactionStore,
 )
 from .util import (
     account_name,
@@ -56,13 +54,13 @@ def get_accounts(
     accounts_to_export: AccountSequence,
     exportable_account_names: AccountNames,
     importable_account_links: AccountLinks,
-    account_store: AccountStore,
+    db_contents: DbContents,
 ) -> None:
     """Get all accounts."""
     cur = con.cursor()
     cur.execute(select_accounts)
     for row in cur.fetchall():
-        account_store[row["guid"]] = Account(
+        db_contents.account_store[row["guid"]] = Account(
             guid=row["guid"],
             _name=row["name"],
             parent_guid=row["parent_guid"],
@@ -73,8 +71,8 @@ def get_accounts(
             account_supplementary_name="",
         )
 
-    for account in account_store.values():
-        acc_name = account_name(account, account_store)
+    for account in db_contents.account_store.values():
+        acc_name = account_name(account, db_contents.account_store)
         if acc_name in importable_account_names:
             accounts_to_read.append(account)
         if acc_name in exportable_account_names:
@@ -92,14 +90,12 @@ def get_accounts(
         )
 
 
-def get_transactions(
-    con: sqlite3.Connection, transaction_store: TransactionStore
-) -> None:
+def get_transactions(con: sqlite3.Connection, db_contents: DbContents) -> None:
     """Get all transactions."""
     cur = con.cursor()
     cur.execute(select_transactions)
     for row in cur.fetchall():
-        transaction_store[row["guid"]] = Transaction(
+        db_contents.transaction_store[row["guid"]] = Transaction(
             guid=row["guid"],
             date=date.fromisoformat(row["post_date"].split(" ")[0]),
             description=row["description"],
@@ -109,24 +105,22 @@ def get_transactions(
 def get_splits(
     con: sqlite3.Connection,
     accounts_to_read: AccountSequence,
-    account_store: AccountStore,
-    transaction_store: TransactionStore,
-    split_store: SplitStore,
+    db_contents: DbContents,
 ) -> None:
     """Get all splits."""
     cur = con.cursor()
     cur.execute(select_splits)
     for row in cur.fetchall():
-        account = account_store[row["account_guid"]]
+        account = db_contents.account_store[row["account_guid"]]
         split = Split(
             guid=row["guid"],
             account=account,
-            transaction=transaction_store[row["tx_guid"]],
+            transaction=db_contents.transaction_store[row["tx_guid"]],
             memo=row["memo"],
             value=Decimal(row["value_num"]),
         )
         if account in accounts_to_read:
-            split_store[row["guid"]] = split
+            db_contents.split_store[row["guid"]] = split
 
 
 def open_connection(config: Configuration) -> sqlite3.Connection:

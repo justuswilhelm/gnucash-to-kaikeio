@@ -168,15 +168,13 @@ def main(config: Configuration) -> None:
         accounts.accounts_to_export,
         account_info.exportable_account_names,
         account_info.importable_account_links,
-        db_contents.account_store,
+        db_contents,
     )
-    get_transactions(con, db_contents.transaction_store)
+    get_transactions(con, db_contents)
     get_splits(
         con,
         accounts.accounts_to_read,
-        db_contents.account_store,
-        db_contents.transaction_store,
-        db_contents.split_store,
+        db_contents,
     )
     populate_transaction_splits(db_contents)
 
