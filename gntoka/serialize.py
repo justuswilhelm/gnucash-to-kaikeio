@@ -122,7 +122,7 @@ class SplitDict(TypedDict):
 def serialize_journal_entry(value: types.JournalEntry) -> JournalEntryDict:
     """Serialize a journal entry."""
     return {
-        "伝票番号": value.伝票番号,
+        "伝票番号": value.slip_number,
         "行番号": value.行番号,
         "伝票日付": value.伝票日付,
         "借方科目コード": value.借方科目コード,

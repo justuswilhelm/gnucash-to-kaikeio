@@ -73,7 +73,7 @@ class Split:
 class JournalEntry:
     """A journal entry."""
 
-    伝票番号: str
+    slip_number: str
     行番号: str
     伝票日付: str
     借方科目コード: str
