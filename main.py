@@ -49,7 +49,7 @@ def populate_transaction_splits(db_contents: DbContents) -> None:
 def is_exportable(accounts: Accounts, splits: Iterable[Split]) -> bool:
     """Decide whether a transaction with its splits is to be exported."""
     return any(
-        split.account in accounts.accounts_to_export for split in splits
+        split.account.guid in accounts.accounts_to_export for split in splits
     )
 
 

@@ -7,13 +7,15 @@ from typing import (
 )
 
 from .types import (
-    Account,
-    AccountStore,
+    GnuCashAccount,
+    GnuCashAccountStore,
     Split,
 )
 
 
-def account_name(account: Account, accounts: AccountStore) -> str:
+def account_name(
+    account: GnuCashAccount, accounts: GnuCashAccountStore
+) -> str:
     """Return full name."""
     if not account.parent_guid:
         return account._name

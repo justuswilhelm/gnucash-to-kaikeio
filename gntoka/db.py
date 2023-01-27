@@ -14,9 +14,11 @@ from typing import (
 from .types import (
     Account,
     AccountInfo,
+    AccountLink,
     Accounts,
     Configuration,
     DbContents,
+    GnuCashAccount,
     Split,
     Transaction,
 )
@@ -53,16 +55,26 @@ def fetch_gnucash_accounts(
     cur = con.cursor()
     cur.execute(select_accounts)
     for row in cur.fetchall():
-        db_contents.account_store[row["guid"]] = Account(
+        db_contents.gnucash_account_store[row["guid"]] = GnuCashAccount(
             guid=row["guid"],
             _name=row["name"],
             parent_guid=row["parent_guid"],
-            # Set them to empty for now
-            account="",
-            account_supplementary="",
-            account_name="",
-            account_supplementary_name="",
         )
+
+
+def make_linked_account(
+    account: GnuCashAccount, account_link: AccountLink
+) -> Account:
+    """Link GnuCash and Kaikeio information in one account."""
+    return Account(
+        guid=account.guid,
+        _name=account._name,
+        parent_guid=account.parent_guid,
+        account=account_link.account,
+        account_supplementary=account_link.account_supplementary,
+        account_name=account_link.account_name,
+        account_supplementary_name=account_link.account_supplementary_name,
+    )
 
 
 def get_accounts(
@@ -70,29 +82,26 @@ def get_accounts(
     account_info: AccountInfo,
     db_contents: DbContents,
 ) -> Accounts:
-    """Get all accounts."""
+    """Get all accounts and link them with Kaikeio information."""
     accounts = Accounts()
 
     fetch_gnucash_accounts(con, db_contents)
 
-    for account in db_contents.account_store.values():
-        acc_name = account_name(account, db_contents.account_store)
+    for account in db_contents.gnucash_account_store.values():
+        acc_name = account_name(account, db_contents.gnucash_account_store)
         if acc_name in account_info.importable_account_names:
-            accounts.accounts_to_read.append(account)
+            accounts.accounts_to_read.add(account.guid)
         if acc_name in account_info.exportable_account_names:
-            accounts.accounts_to_export.append(account)
-        account_additional = account_info.importable_account_links.get(
-            acc_name
-        )
-        if not account_additional:
+            accounts.accounts_to_export.add(account.guid)
+        account_link = account_info.importable_account_links.get(acc_name)
+
+        if not account_link:
             continue
-        account.account = account_additional.account
-        account.account_supplementary = (
-            account_additional.account_supplementary
-        )
-        account.account_name = account_additional.account_name
-        account.account_supplementary_name = (
-            account_additional.account_supplementary_name
+
+        # Annotate link to kaikeio
+        db_contents.account_store[account.guid] = make_linked_account(
+            account,
+            account_link,
         )
 
     return accounts
@@ -127,7 +136,7 @@ def get_splits(
             memo=row["memo"],
             value=Decimal(row["value_num"]),
         )
-        if account in accounts.accounts_to_read:
+        if account.guid in accounts.accounts_to_read:
             db_contents.split_store[row["guid"]] = split
 
 

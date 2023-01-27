@@ -19,16 +19,26 @@ from typing import (
     Dict,
     List,
     Mapping,
+    Set,
 )
 
 
 @dataclass
-class Account:
-    """An account."""
+class GnuCashAccount:
+    """GnuCash representation of an account."""
 
     guid: str
     _name: str
     parent_guid: str
+
+
+# TODO use composition, not inheritance
+# Eventually we should store a composite containing GnuCashAccount and
+# AccountLink
+@dataclass
+class Account(GnuCashAccount):
+    """An account."""
+
     account: str
     account_supplementary: str
     account_name: str
@@ -94,8 +104,9 @@ class JournalEntry:
     伝票種別: str
 
 
+GnuCashAccountStore = Dict[str, GnuCashAccount]
 AccountStore = Dict[str, Account]
-AccountSequence = List[Account]
+AccountIds = Set[str]
 TransactionStore = Dict[str, Transaction]
 SplitStore = Dict[str, Split]
 JournalEntries = List[JournalEntry]
@@ -118,6 +129,7 @@ class Configuration:
 class DbContents:
     """Store everything we have read from GnuCash."""
 
+    gnucash_account_store: GnuCashAccountStore = field(default_factory=dict)
     account_store: AccountStore = field(default_factory=dict)
     transaction_store: TransactionStore = field(default_factory=dict)
     split_store: SplitStore = field(default_factory=dict)
@@ -152,5 +164,5 @@ class AccountInfo:
 class Accounts:
     """Contains all accounts."""
 
-    accounts_to_read: AccountSequence = field(default_factory=list)
-    accounts_to_export: AccountSequence = field(default_factory=list)
+    accounts_to_read: AccountIds = field(default_factory=set)
+    accounts_to_export: AccountIds = field(default_factory=set)
