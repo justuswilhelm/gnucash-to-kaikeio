@@ -56,8 +56,10 @@ def main(config: Configuration) -> None:
     """Run program."""
     con = db.open_connection(config)
 
-    db_contents = DbContents(account_store=get_accounts(con))
-    get_transactions(con, db_contents)
+    db_contents = DbContents(
+        account_store=get_accounts(con),
+        transaction_store=get_transactions(con),
+    )
     get_splits(con, db_contents)
     populate_transaction_splits(db_contents)
 

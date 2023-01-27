@@ -25,6 +25,7 @@ from .types import (
     GnuCashAccount,
     GnuCashAccountStore,
     Split,
+    TransactionStore,
 )
 
 
@@ -110,13 +111,14 @@ def get_accounts(
     return account_store
 
 
-def get_transactions(con: sqlite3.Connection, db_contents: DbContents) -> None:
+def get_transactions(con: sqlite3.Connection) -> TransactionStore:
     """Get all transactions."""
     cur = con.cursor()
     cur.execute(select_transactions)
-    for row in cur.fetchall():
-        tx = deserialize_transaction(row)
-        db_contents.transaction_store[tx.guid] = tx
+    return {
+        tx.guid: tx
+        for tx in (deserialize_transaction(row) for row in cur.fetchall())
+    }
 
 
 def get_splits(

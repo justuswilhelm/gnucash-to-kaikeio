@@ -149,8 +149,8 @@ class Configuration:
 class DbContents:
     """Store everything we have read from GnuCash."""
 
-    account_store: AccountStore = field(default_factory=dict)
-    transaction_store: TransactionStore = field(default_factory=dict)
+    account_store: AccountStore
+    transaction_store: TransactionStore
     split_store: SplitStore = field(default_factory=dict)
     transaction_splits: Dict[str, List[Split]] = field(
         default_factory=lambda: defaultdict(list)
