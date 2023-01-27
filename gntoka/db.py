@@ -92,8 +92,6 @@ def get_accounts(
         acc_name = account_name(account, db_contents.gnucash_account_store)
         if acc_name in account_info.importable_account_names:
             accounts.accounts_to_read.add(account.guid)
-        if acc_name in account_info.exportable_account_names:
-            accounts.accounts_to_export.add(account.guid)
         account_link = account_info.importable_account_links.get(acc_name)
 
         if not account_link:

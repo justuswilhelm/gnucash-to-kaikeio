@@ -11,7 +11,6 @@ from . import (
 from .types import (
     AccountInfo,
     AccountLink,
-    AccountNames,
     Configuration,
 )
 
@@ -38,13 +37,6 @@ def read_account_links(config: Configuration) -> Mapping[str, AccountLink]:
         }
 
 
-def read_exportable_accounts(config: Configuration) -> AccountNames:
-    """Read names of accounts that are to be exported."""
-    with config.accounts_export_csv.open() as fd:
-        reader = csv.DictReader(fd)
-        return [row["name"] for row in reader]
-
-
 def read_account_info(
     config: Configuration,
 ) -> AccountInfo:
@@ -52,7 +44,6 @@ def read_account_info(
     account_links = read_account_links(config)
 
     account_info = AccountInfo(
-        exportable_account_names=read_exportable_accounts(config),
         importable_account_links=account_links,
         importable_account_names=list(account_links.keys()),
     )

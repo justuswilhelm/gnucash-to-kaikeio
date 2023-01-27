@@ -125,7 +125,6 @@ class Configuration:
 
     gnucash_db: Path
     account_links_csv: Path
-    accounts_export_csv: Path
     journal_out_csv: Path
 
 
@@ -158,10 +157,9 @@ AccountLinks = Mapping[str, AccountLink]
 
 @dataclass
 class AccountInfo:
-    """Contains information about accounts to process and export."""
+    """Contains information about accounts to process."""
 
     importable_account_names: AccountNames = field(default_factory=list)
-    exportable_account_names: AccountNames = field(default_factory=list)
     importable_account_links: AccountLinks = field(default_factory=dict)
 
 
@@ -170,4 +168,3 @@ class Accounts:
     """Contains all accounts."""
 
     accounts_to_read: AccountIds = field(default_factory=set)
-    accounts_to_export: AccountIds = field(default_factory=set)

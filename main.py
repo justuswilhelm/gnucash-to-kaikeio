@@ -10,9 +10,6 @@ from itertools import (
 from pathlib import (
     Path,
 )
-from typing import (
-    Iterable,
-)
 
 import toml
 from gntoka import (
@@ -35,7 +32,6 @@ from gntoka.types import (
     DbContents,
     JournalEntries,
     JournalEntry,
-    Split,
     TransactionSplits,
 )
 
@@ -44,13 +40,6 @@ def populate_transaction_splits(db_contents: DbContents) -> None:
     """Populate transaction_splits."""
     for split in db_contents.split_store.values():
         db_contents.transaction_splits[split.transaction.guid].append(split)
-
-
-def is_exportable(accounts: Accounts, splits: Iterable[Split]) -> bool:
-    """Decide whether a transaction with its splits is to be exported."""
-    return any(
-        split.account.guid in accounts.accounts_to_export for split in splits
-    )
 
 
 def build_journal(
@@ -62,8 +51,6 @@ def build_journal(
     counter = count(start=1)
 
     for tx in transaction_splits_values:
-        if not is_exportable(accounts, tx):
-            continue
         assert len(tx) > 1
         assert sum(split.value for split in tx) == Decimal(0), tx
         debits = list(util.get_debits(tx))
@@ -200,9 +187,6 @@ if __name__ == "__main__":
         gnucash_db=Path(config_path_parent / config_dict["gnucash_db"]),
         account_links_csv=Path(
             config_path_parent / config_dict["account_links_csv"]
-        ),
-        accounts_export_csv=Path(
-            config_path_parent / config_dict["accounts_export_csv"]
         ),
         journal_out_csv=Path(
             config_path_parent / config_dict["journal_out_csv"]
