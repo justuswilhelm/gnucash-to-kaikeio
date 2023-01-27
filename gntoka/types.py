@@ -75,7 +75,7 @@ class JournalEntry:
 
     slip_number: int
     line_number: int
-    slip_date: str
+    slip_date: date
     借方科目コード: str
     借方科目名称: str
     借方補助コード: str

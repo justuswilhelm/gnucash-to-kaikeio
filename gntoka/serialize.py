@@ -8,6 +8,7 @@ from typing import (
 
 from . import (
     types,
+    util,
 )
 
 
@@ -124,7 +125,7 @@ def serialize_journal_entry(value: types.JournalEntry) -> JournalEntryDict:
     return {
         "伝票番号": str(value.slip_number),
         "行番号": str(value.line_number),
-        "伝票日付": value.slip_date,
+        "伝票日付": util.format_date(value.slip_date),
         "借方科目コード": value.借方科目コード,
         "借方科目名称": value.借方科目名称,
         "借方補助コード": value.借方補助コード,

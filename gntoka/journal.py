@@ -46,7 +46,7 @@ def make_journal_entry(
     return JournalEntry(
         slip_number=slip_number,
         line_number=line_number or 1,
-        slip_date=util.format_date(slip_date),
+        slip_date=slip_date,
         借方科目コード=借方科目コード,
         借方科目名称=借方科目名称,
         借方補助コード=借方補助コード,
