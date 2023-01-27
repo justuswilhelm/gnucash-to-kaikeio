@@ -28,7 +28,7 @@ class KaikeoDialect(csv.Dialect):
 
 def read_account_links(config: Configuration) -> Mapping[str, AccountLink]:
     """Read names and options of accounts that are to be imported."""
-    with config.accounts_read_csv.open() as fd:
+    with config.account_links_csv.open() as fd:
         reader = csv.DictReader(fd)
         account_links = (
             serialize.deserialize_account_link(row) for row in reader

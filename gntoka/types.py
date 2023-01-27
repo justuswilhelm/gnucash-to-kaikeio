@@ -124,7 +124,7 @@ class Configuration:
     """Store configuration variables."""
 
     gnucash_db: Path
-    accounts_read_csv: Path
+    account_links_csv: Path
     accounts_export_csv: Path
     journal_out_csv: Path
 

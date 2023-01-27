@@ -198,8 +198,8 @@ if __name__ == "__main__":
     config_path_parent = config_path.parent
     configuration = Configuration(
         gnucash_db=Path(config_path_parent / config_dict["gnucash_db"]),
-        accounts_read_csv=Path(
-            config_path_parent / config_dict["accounts_read_csv"]
+        account_links_csv=Path(
+            config_path_parent / config_dict["account_links_csv"]
         ),
         accounts_export_csv=Path(
             config_path_parent / config_dict["accounts_export_csv"]
