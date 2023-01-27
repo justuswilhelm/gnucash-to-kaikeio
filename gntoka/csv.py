@@ -22,6 +22,7 @@ class KaikeoDialect(csv.Dialect):
     lineterminator = "\r\n"
 
 
+# This should handle serialization directly
 def write_journal_entries(
     config: Configuration, entry_dicts: Iterable[serialize.JournalEntryDict]
 ) -> None:

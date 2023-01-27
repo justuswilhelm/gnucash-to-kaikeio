@@ -7,7 +7,6 @@
 when writing to csv
 - Allow specifying start and end date
 - Allow specifying start number
-- Annotate whether account should be exported in account_links
 - Make account codes nullable
 - Link splits or transactions to gnu cash accounts, not linked accounts
 - Technically, since Japanese Yen doesn't use decimals, we don't need to use
