@@ -128,7 +128,12 @@ def get_splits(
     cur = con.cursor()
     cur.execute(select_splits)
     for row in cur.fetchall():
-        account = db_contents.account_store[row["account_guid"]]
+        account = db_contents.account_store.get(row["account_guid"])
+        if account is None:
+            raise ValueError(
+                f"Expected to find account for {row} with account_guid "
+                f"{row['account_guid']} among the imported GnuCash accounts"
+            )
         split = Split(
             guid=row["guid"],
             account=account,

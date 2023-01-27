@@ -9,3 +9,4 @@ when writing to csv
 - Allow specifying start number
 - Rename accounts_read to account_links
 - Annotate whether account should be exported in account_links
+- Make account codes nullable
