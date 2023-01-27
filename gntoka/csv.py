@@ -30,14 +30,11 @@ def read_account_links(config: Configuration) -> Mapping[str, AccountLink]:
     """Read names and options of accounts that are to be imported."""
     with config.accounts_read_csv.open() as fd:
         reader = csv.DictReader(fd)
+        account_links = (
+            serialize.deserialize_account_link(row) for row in reader
+        )
         return {
-            row["name"]: AccountLink(
-                account=row["account"],
-                account_supplementary=row["account_supplementary"],
-                account_name=row["account_name"],
-                account_supplementary_name=row["account_supplementary_name"],
-            )
-            for row in reader
+            account_link.name: account_link for account_link in account_links
         }
 
 

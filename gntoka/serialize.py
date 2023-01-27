@@ -13,6 +13,7 @@ from . import (
 )
 
 
+# Dictionaries
 class JournalEntryDict(TypedDict):
     """A journal entry dict."""
 
@@ -88,7 +89,30 @@ journal_entry_columns = (
 )
 
 
+class AccountLinkDict(TypedDict):
+    """Encode account link information."""
+
+    name: str
+    account: str
+    account_supplementary: str
+    account_name: str
+    account_supplementary_name: str
+
+
+# Serializers
 def serialize_journal_entry(value: types.JournalEntry) -> JournalEntryDict:
     """Serialize a journal entry."""
     d: Mapping[str, str] = {k: str(v) for k, v in asdict(value).items()}
     return cast(JournalEntryDict, d)
+
+
+# Deserializers
+def deserialize_account_link(account_link: types.CsvRow) -> types.AccountLink:
+    """Deserialize an account link."""
+    return types.AccountLink(
+        name=account_link["name"],
+        account=account_link["account"],
+        account_supplementary=account_link["account_supplementary"],
+        account_name=account_link["account_name"],
+        account_supplementary_name=account_link["account_supplementary_name"],
+    )

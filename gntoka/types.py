@@ -23,6 +23,9 @@ from typing import (
 )
 
 
+CsvRow = Mapping[str, str]
+
+
 @dataclass
 class GnuCashAccount:
     """GnuCash representation of an account."""
@@ -142,6 +145,7 @@ class DbContents:
 class AccountLink:
     """Links GnuCash and Kaikeio accounts."""
 
+    name: str
     account: str
     account_supplementary: str
     account_name: str
