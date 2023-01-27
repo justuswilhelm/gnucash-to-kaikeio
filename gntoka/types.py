@@ -1,4 +1,5 @@
 """Types used in application."""
+import enum
 from collections import (
     defaultdict,
 )
@@ -32,6 +33,7 @@ CsvRow = Mapping[str, str]
 class GnuCashAccount:
     """GnuCash representation of an account."""
 
+    code: str
     guid: str
     _name: str
     parent_guid: str
@@ -45,9 +47,12 @@ class Account(GnuCashAccount):
     """An account."""
 
     account: str
+    # TODO This should be Optional
     account_supplementary: str
     account_name: str
+    # TODO This should be Optional
     account_supplementary_name: str
+    parent: Optional[GnuCashAccount]
 
 
 @dataclass
@@ -70,6 +75,14 @@ class Split:
     value: Decimal
 
 
+class ConsumptionTaxRate(enum.Enum):
+    """Encode the applicable tax rate."""
+
+    ZERO = enum.auto()
+    EIGHT_REDUCED = enum.auto()
+    TEN = enum.auto()
+
+
 @dataclass
 class JournalEntry:
     """A journal entry."""
@@ -86,7 +99,7 @@ class JournalEntry:
     借方課税区分: str
     借方事業分類: str
     借方消費税処理方法: str
-    借方消費税率: str
+    借方消費税率: ConsumptionTaxRate
     借方金額: Optional[Decimal]
     借方消費税額: Decimal
     貸方科目コード: str
@@ -98,7 +111,7 @@ class JournalEntry:
     貸方課税区分: str
     貸方事業分類: str
     貸方消費税処理方法: str
-    貸方消費税率: str
+    貸方消費税率: ConsumptionTaxRate
     貸方金額: Optional[Decimal]
     貸方消費税額: Decimal
     摘要: str
@@ -129,7 +142,6 @@ class Configuration:
     """Store configuration variables."""
 
     gnucash_db: Path
-    account_links_csv: Path
     journal_out_csv: Path
 
 
@@ -144,32 +156,3 @@ class DbContents:
     transaction_splits: Dict[str, List[Split]] = field(
         default_factory=lambda: defaultdict(list)
     )
-
-
-@dataclass
-class AccountLink:
-    """Links GnuCash and Kaikeio accounts."""
-
-    name: str
-    account: str
-    account_supplementary: str
-    account_name: str
-    account_supplementary_name: str
-
-
-AccountLinks = Mapping[str, AccountLink]
-
-
-@dataclass
-class AccountInfo:
-    """Contains information about accounts to process."""
-
-    importable_account_names: AccountNames = field(default_factory=list)
-    importable_account_links: AccountLinks = field(default_factory=dict)
-
-
-@dataclass
-class Accounts:
-    """Contains all accounts."""
-
-    accounts_to_read: AccountIds = field(default_factory=set)

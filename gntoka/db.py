@@ -5,6 +5,7 @@ from decimal import (
 )
 from typing import (
     Dict,
+    Optional,
     Sequence,
     cast,
 )
@@ -15,16 +16,11 @@ from .serialize import (
 )
 from .types import (
     Account,
-    AccountInfo,
-    AccountLink,
-    Accounts,
     Configuration,
     DbContents,
     GnuCashAccount,
+    GnuCashAccountStore,
     Split,
-)
-from .util import (
-    account_name,
 )
 
 
@@ -58,52 +54,60 @@ def fetch_gnucash_accounts(
     for row in cur.fetchall():
         db_contents.gnucash_account_store[row["guid"]] = GnuCashAccount(
             guid=row["guid"],
+            code=row["code"],
             _name=row["name"],
             parent_guid=row["parent_guid"],
         )
 
 
 def make_linked_account(
-    account: GnuCashAccount, account_link: AccountLink
+    account: GnuCashAccount,
+    parent: Optional[GnuCashAccount],
 ) -> Account:
     """Link GnuCash and Kaikeio information in one account."""
+    if parent and parent.code:
+        name = parent._name
+        code = parent.code
+        name_supplementary = account._name
+        code_supplementary = account.code
+    else:
+        name = account._name
+        code = account.code
+        name_supplementary = ""
+        code_supplementary = ""
     return Account(
         guid=account.guid,
+        code=account.code,
         _name=account._name,
         parent_guid=account.parent_guid,
-        account=account_link.account,
-        account_supplementary=account_link.account_supplementary,
-        account_name=account_link.account_name,
-        account_supplementary_name=account_link.account_supplementary_name,
+        account=code,
+        account_supplementary=code_supplementary,
+        account_name=name,
+        account_supplementary_name=name_supplementary,
+        parent=parent,
     )
 
 
-def get_accounts(
-    con: sqlite3.Connection,
-    account_info: AccountInfo,
-    db_contents: DbContents,
-) -> Accounts:
-    """Get all accounts and link them with Kaikeio information."""
-    accounts = Accounts()
+# Can we do this in SQL?
+def find_parent(
+    accounts: GnuCashAccountStore, account: GnuCashAccount
+) -> Optional[GnuCashAccount]:
+    """Find the parent for an account."""
+    return accounts.get(account.parent_guid)
 
+
+def get_accounts(con: sqlite3.Connection, db_contents: DbContents) -> None:
+    """Get all accounts and link them with Kaikeio information."""
     fetch_gnucash_accounts(con, db_contents)
 
     for account in db_contents.gnucash_account_store.values():
-        acc_name = account_name(account, db_contents.gnucash_account_store)
-        if acc_name in account_info.importable_account_names:
-            accounts.accounts_to_read.add(account.guid)
-        account_link = account_info.importable_account_links.get(acc_name)
-
-        if not account_link:
-            continue
+        parent = find_parent(db_contents.gnucash_account_store, account)
 
         # Annotate link to kaikeio
         db_contents.account_store[account.guid] = make_linked_account(
             account,
-            account_link,
+            parent,
         )
-
-    return accounts
 
 
 def get_transactions(con: sqlite3.Connection, db_contents: DbContents) -> None:
@@ -117,7 +121,6 @@ def get_transactions(con: sqlite3.Connection, db_contents: DbContents) -> None:
 
 def get_splits(
     con: sqlite3.Connection,
-    accounts: Accounts,
     db_contents: DbContents,
 ) -> None:
     """Get all splits."""
@@ -139,8 +142,7 @@ def get_splits(
             memo=split_dict["memo"],
             value=Decimal(split_dict["value_num"]),
         )
-        if account.guid in accounts.accounts_to_read:
-            db_contents.split_store[split.guid] = split
+        db_contents.split_store[split.guid] = split
 
 
 def open_connection(config: Configuration) -> sqlite3.Connection:

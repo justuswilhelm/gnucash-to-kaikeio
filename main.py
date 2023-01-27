@@ -15,7 +15,6 @@ from gntoka import (
     serialize,
 )
 from gntoka.csv import (
-    read_account_info,
     write_journal_entries,
 )
 from gntoka.db import (
@@ -24,7 +23,6 @@ from gntoka.db import (
     get_transactions,
 )
 from gntoka.types import (
-    Accounts,
     Configuration,
     DbContents,
     JournalEntries,
@@ -40,7 +38,7 @@ def populate_transaction_splits(db_contents: DbContents) -> None:
 
 
 def build_journal(
-    accounts: Accounts, transaction_splits_values: TransactionSplits
+    transaction_splits_values: TransactionSplits,
 ) -> JournalEntries:
     """Build a journal."""
     account_journal: JournalEntries = []
@@ -58,23 +56,11 @@ def main(config: Configuration) -> None:
     """Run program."""
     con = db.open_connection(config)
 
-    account_info = read_account_info(
-        config,
-    )
-
     db_contents = DbContents()
 
-    accounts = get_accounts(
-        con,
-        account_info,
-        db_contents,
-    )
+    get_accounts(con, db_contents)
     get_transactions(con, db_contents)
-    get_splits(
-        con,
-        accounts,
-        db_contents,
-    )
+    get_splits(con, db_contents)
     populate_transaction_splits(db_contents)
 
     transaction_splits_values: TransactionSplits
@@ -83,10 +69,7 @@ def main(config: Configuration) -> None:
         key=lambda tx: tx[0].transaction.date,
     )
 
-    account_journal: JournalEntries = build_journal(
-        accounts,
-        transaction_splits_values,
-    )
+    account_journal: JournalEntries = build_journal(transaction_splits_values)
     entry_dicts = [
         serialize.serialize_journal_entry(e) for e in account_journal
     ]
@@ -103,9 +86,6 @@ if __name__ == "__main__":
     config_path_parent = config_path.parent
     configuration = Configuration(
         gnucash_db=Path(config_path_parent / config_dict["gnucash_db"]),
-        account_links_csv=Path(
-            config_path_parent / config_dict["account_links_csv"]
-        ),
         journal_out_csv=Path(
             config_path_parent / config_dict["journal_out_csv"]
         ),

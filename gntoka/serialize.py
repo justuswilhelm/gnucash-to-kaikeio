@@ -120,6 +120,17 @@ class SplitDict(TypedDict):
 
 
 # Serializers
+def serialize_consumption_tax_rate(value: types.ConsumptionTaxRate) -> str:
+    """Serialize consumption tax rate."""
+    if value == types.ConsumptionTaxRate.ZERO:
+        return "0%"
+    elif value == types.ConsumptionTaxRate.EIGHT_REDUCED:
+        return "8%軽"
+    elif value == types.ConsumptionTaxRate.TEN:
+        return "10%"
+    assert False, f"{value} is unexpected"
+
+
 def serialize_journal_entry(value: types.JournalEntry) -> JournalEntryDict:
     """Serialize a journal entry."""
     return {
@@ -135,7 +146,7 @@ def serialize_journal_entry(value: types.JournalEntry) -> JournalEntryDict:
         "借方課税区分": value.借方課税区分,
         "借方事業分類": value.借方事業分類,
         "借方消費税処理方法": value.借方消費税処理方法,
-        "借方消費税率": value.借方消費税率,
+        "借方消費税率": serialize_consumption_tax_rate(value.借方消費税率),
         "借方金額": str(value.借方金額),
         "借方消費税額": str(value.借方消費税額),
         "貸方科目コード": value.貸方科目コード,
@@ -147,7 +158,7 @@ def serialize_journal_entry(value: types.JournalEntry) -> JournalEntryDict:
         "貸方課税区分": value.貸方課税区分,
         "貸方事業分類": value.貸方事業分類,
         "貸方消費税処理方法": value.貸方消費税処理方法,
-        "貸方消費税率": value.貸方消費税率,
+        "貸方消費税率": serialize_consumption_tax_rate(value.貸方消費税率),
         "貸方金額": str(value.貸方金額),
         "貸方消費税額": str(value.貸方消費税額),
         "摘要": value.摘要,
@@ -160,17 +171,6 @@ def serialize_journal_entry(value: types.JournalEntry) -> JournalEntryDict:
 
 
 # Deserializers
-def deserialize_account_link(account_link: types.CsvRow) -> types.AccountLink:
-    """Deserialize an account link."""
-    return types.AccountLink(
-        name=account_link["name"],
-        account=account_link["account"],
-        account_supplementary=account_link["account_supplementary"],
-        account_name=account_link["account_name"],
-        account_supplementary_name=account_link["account_supplementary_name"],
-    )
-
-
 def deserialize_transaction(transaction: types.CsvRow) -> types.Transaction:
     """Deserialize a transaction."""
     return types.Transaction(

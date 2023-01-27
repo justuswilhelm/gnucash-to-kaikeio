@@ -14,3 +14,11 @@ expects a folder called "out/" and two input files called `accounts.csv` and `ex
 ```
 ./test.py
 ```
+
+# How the supplementary account is determined
+
+If an account has a parent with a code, then it is assumed that this account's
+code is the supplementary code.
+
+If an account has a parent without a code, then it is assumed that this
+account's code is the code, and there is no supplementary code.

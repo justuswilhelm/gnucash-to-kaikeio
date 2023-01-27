@@ -17,6 +17,7 @@ from . import (
 )
 from .types import (
     Account,
+    ConsumptionTaxRate,
     JournalEntries,
     JournalEntry,
     JournalEntryCounter,
@@ -83,7 +84,7 @@ def make_journal_entry(
         借方課税区分="0",
         借方事業分類="0",
         借方消費税処理方法="3",
-        借方消費税率="0%",
+        借方消費税率=ConsumptionTaxRate.ZERO,
         借方金額=借方金額,
         借方消費税額=Decimal("0"),
         貸方科目コード=貸方科目コード,
@@ -95,7 +96,7 @@ def make_journal_entry(
         貸方課税区分="",
         貸方事業分類="0",
         貸方消費税処理方法="3",
-        貸方消費税率="0%",
+        貸方消費税率=ConsumptionTaxRate.ZERO,
         貸方金額=貸方金額,
         貸方消費税額=Decimal("0"),
         # XXX This should have the description

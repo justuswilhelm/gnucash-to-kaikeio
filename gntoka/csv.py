@@ -2,15 +2,12 @@
 import csv
 from typing import (
     Iterable,
-    Mapping,
 )
 
 from . import (
     serialize,
 )
 from .types import (
-    AccountInfo,
-    AccountLink,
     Configuration,
 )
 
@@ -23,32 +20,6 @@ class KaikeoDialect(csv.Dialect):
     quotechar = '"'
     quoting = csv.QUOTE_ALL
     lineterminator = "\r\n"
-
-
-def read_account_links(config: Configuration) -> Mapping[str, AccountLink]:
-    """Read names and options of accounts that are to be imported."""
-    with config.account_links_csv.open() as fd:
-        reader = csv.DictReader(fd)
-        account_links = (
-            serialize.deserialize_account_link(row) for row in reader
-        )
-        return {
-            account_link.name: account_link for account_link in account_links
-        }
-
-
-def read_account_info(
-    config: Configuration,
-) -> AccountInfo:
-    """Read in all accounts to export."""
-    account_links = read_account_links(config)
-
-    account_info = AccountInfo(
-        importable_account_links=account_links,
-        importable_account_names=list(account_links.keys()),
-    )
-
-    return account_info
 
 
 def write_journal_entries(
