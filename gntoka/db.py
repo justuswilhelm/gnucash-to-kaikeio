@@ -3,8 +3,11 @@ import sqlite3
 from decimal import (
     Decimal,
 )
+from pathlib import (
+    Path,
+)
 from typing import (
-    Dict,
+    Mapping,
     Optional,
     Sequence,
     cast,
@@ -24,25 +27,20 @@ from .types import (
 )
 
 
-select_accounts = """
-SELECT * FROM accounts
-"""
-
-select_transactions = """
-SELECT * FROM transactions
-"""
-
-select_splits = """
-SELECT * FROM splits
-"""
+# Not exactly side effect free
+# TODO decide if that is an issue
+SQL_PATH = Path("gntoka/sql")
+select_accounts = (SQL_PATH / "select_accounts.sql").read_text()
+select_transactions = (SQL_PATH / "select_transactions.sql").read_text()
+select_splits = (SQL_PATH / "select_splits.sql").read_text()
 
 
-def dict_factory(cursor: sqlite3.Cursor, row: Sequence[str]) -> Dict[str, str]:
+def dict_factory(
+    cursor: sqlite3.Cursor,
+    row: Sequence[str],
+) -> Mapping[str, str]:
     """Package a cursor row in a dict."""
-    d = {}
-    for idx, col in enumerate(cursor.description):
-        d[col[0]] = row[idx]
-    return d
+    return {col[0]: row[idx] for idx, col in enumerate(cursor.description)}
 
 
 def fetch_gnucash_accounts(
@@ -88,7 +86,7 @@ def make_linked_account(
     )
 
 
-# Can we do this in SQL?
+# Can we do this in SQL? We could just join the account with its parent
 def find_parent(
     accounts: GnuCashAccountStore, account: GnuCashAccount
 ) -> Optional[GnuCashAccount]:
