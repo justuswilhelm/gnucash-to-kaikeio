@@ -123,7 +123,7 @@ def serialize_journal_entry(value: types.JournalEntry) -> JournalEntryDict:
     """Serialize a journal entry."""
     return {
         "伝票番号": value.slip_number,
-        "行番号": value.行番号,
+        "行番号": value.line_number,
         "伝票日付": value.伝票日付,
         "借方科目コード": value.借方科目コード,
         "借方科目名称": value.借方科目名称,

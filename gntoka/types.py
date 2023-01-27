@@ -74,7 +74,7 @@ class JournalEntry:
     """A journal entry."""
 
     slip_number: str
-    行番号: str
+    line_number: str
     伝票日付: str
     借方科目コード: str
     借方科目名称: str

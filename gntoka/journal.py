@@ -45,7 +45,7 @@ def make_journal_entry(
     """Make a JournalEntry."""
     return JournalEntry(
         slip_number=str(slip_number),
-        行番号=str(line_number) if line_number else "1",
+        line_number=str(line_number) if line_number else "1",
         伝票日付=util.format_date(伝票日付),
         借方科目コード=借方科目コード,
         借方科目名称=借方科目名称,
