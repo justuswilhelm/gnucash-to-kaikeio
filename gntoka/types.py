@@ -102,6 +102,7 @@ class JournalEntry:
     摘要: str
     補助摘要: str
     メモ: str
+    # XXX investigate whether unicode normalization got to us here...
     付箋１: str
     付箋２: str
     伝票種別: str
