@@ -1,8 +1,5 @@
 """DB access functions."""
 import sqlite3
-from datetime import (
-    date,
-)
 from decimal import (
     Decimal,
 )
@@ -14,6 +11,7 @@ from typing import (
 
 from .serialize import (
     SplitDict,
+    deserialize_transaction,
 )
 from .types import (
     Account,
@@ -24,7 +22,6 @@ from .types import (
     DbContents,
     GnuCashAccount,
     Split,
-    Transaction,
 )
 from .util import (
     account_name,
@@ -116,11 +113,8 @@ def get_transactions(con: sqlite3.Connection, db_contents: DbContents) -> None:
     cur = con.cursor()
     cur.execute(select_transactions)
     for row in cur.fetchall():
-        db_contents.transaction_store[row["guid"]] = Transaction(
-            guid=row["guid"],
-            date=date.fromisoformat(row["post_date"].split(" ")[0]),
-            description=row["description"],
-        )
+        tx = deserialize_transaction(row)
+        db_contents.transaction_store[tx.guid] = tx
 
 
 def get_splits(

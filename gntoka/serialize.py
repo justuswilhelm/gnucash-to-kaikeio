@@ -2,6 +2,9 @@
 from dataclasses import (
     asdict,
 )
+from datetime import (
+    date,
+)
 from typing import (
     Mapping,
     TypedDict,
@@ -99,6 +102,14 @@ class AccountLinkDict(TypedDict):
     account_supplementary_name: str
 
 
+class TransactionDict(TypedDict):
+    """Encode GnuCash transaction information."""
+
+    guid: str
+    post_date: str
+    description: str
+
+
 class SplitDict(TypedDict):
     """Encode GnuCash split."""
 
@@ -125,4 +136,14 @@ def deserialize_account_link(account_link: types.CsvRow) -> types.AccountLink:
         account_supplementary=account_link["account_supplementary"],
         account_name=account_link["account_name"],
         account_supplementary_name=account_link["account_supplementary_name"],
+    )
+
+
+def deserialize_transaction(transaction: types.CsvRow) -> types.Transaction:
+    """Deserialize a transaction."""
+    return types.Transaction(
+        guid=transaction["guid"],
+        # TODO Use string format based parsing instead
+        date=date.fromisoformat(transaction["post_date"].split(" ")[0]),
+        description=transaction["description"],
     )
