@@ -56,9 +56,11 @@ def main(config: Configuration) -> None:
     """Run program."""
     con = db.open_connection(config)
 
-    db_contents = DbContents()
-
-    get_accounts(con, db_contents)
+    gnucash_account_store, account_store = get_accounts(con)
+    db_contents = DbContents(
+        gnucash_account_store=gnucash_account_store,
+        account_store=account_store,
+    )
     get_transactions(con, db_contents)
     get_splits(con, db_contents)
     populate_transaction_splits(db_contents)

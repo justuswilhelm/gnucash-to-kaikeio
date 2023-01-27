@@ -10,6 +10,7 @@ from typing import (
     Mapping,
     Optional,
     Sequence,
+    Tuple,
     cast,
 )
 
@@ -19,6 +20,7 @@ from .serialize import (
 )
 from .types import (
     Account,
+    AccountStore,
     Configuration,
     DbContents,
     GnuCashAccount,
@@ -43,19 +45,19 @@ def dict_factory(
     return {col[0]: row[idx] for idx, col in enumerate(cursor.description)}
 
 
-def fetch_gnucash_accounts(
-    con: sqlite3.Connection, db_contents: DbContents
-) -> None:
+def fetch_gnucash_accounts(con: sqlite3.Connection) -> GnuCashAccountStore:
     """Fetch accounts in GnuCash."""
     cur = con.cursor()
     cur.execute(select_accounts)
-    for row in cur.fetchall():
-        db_contents.gnucash_account_store[row["guid"]] = GnuCashAccount(
+    return {
+        row["guid"]: GnuCashAccount(
             guid=row["guid"],
             code=row["code"],
             _name=row["name"],
             parent_guid=row["parent_guid"],
         )
+        for row in cur.fetchall()
+    }
 
 
 def make_linked_account(
@@ -94,18 +96,19 @@ def find_parent(
     return accounts.get(account.parent_guid)
 
 
-def get_accounts(con: sqlite3.Connection, db_contents: DbContents) -> None:
+def get_accounts(
+    con: sqlite3.Connection,
+) -> Tuple[GnuCashAccountStore, AccountStore]:
     """Get all accounts and link them with Kaikeio information."""
-    fetch_gnucash_accounts(con, db_contents)
-
-    for account in db_contents.gnucash_account_store.values():
-        parent = find_parent(db_contents.gnucash_account_store, account)
-
-        # Annotate link to kaikeio
-        db_contents.account_store[account.guid] = make_linked_account(
+    gnucash_account_store = fetch_gnucash_accounts(con)
+    account_store = {
+        account.guid: make_linked_account(
             account,
-            parent,
+            find_parent(gnucash_account_store, account),
         )
+        for account in gnucash_account_store.values()
+    }
+    return gnucash_account_store, account_store
 
 
 def get_transactions(con: sqlite3.Connection, db_contents: DbContents) -> None:
