@@ -17,6 +17,7 @@ from pathlib import (
 )
 from typing import (
     Dict,
+    Iterator,
     List,
     Mapping,
     Set,
@@ -114,9 +115,12 @@ AccountIds = Set[str]
 TransactionStore = Dict[str, Transaction]
 SplitStore = Dict[str, Split]
 JournalEntries = List[JournalEntry]
-TransactionSplits = List[List[Split]]
+TransactionSplit = List[Split]
+TransactionSplits = List[TransactionSplit]
 
 AccountNames = List[str]
+
+JournalEntryCounter = Iterator[int]
 
 
 @dataclass
