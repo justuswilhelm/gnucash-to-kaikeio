@@ -167,7 +167,7 @@ def main(config: Configuration) -> None:
     get_transactions(con, db_contents)
     get_splits(
         con,
-        accounts.accounts_to_read,
+        accounts,
         db_contents,
     )
     populate_transaction_splits(db_contents)

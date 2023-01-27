@@ -15,7 +15,6 @@ from .types import (
     Account,
     AccountInfo,
     Accounts,
-    AccountSequence,
     Configuration,
     DbContents,
     Split,
@@ -106,7 +105,7 @@ def get_transactions(con: sqlite3.Connection, db_contents: DbContents) -> None:
 
 def get_splits(
     con: sqlite3.Connection,
-    accounts_to_read: AccountSequence,
+    accounts: Accounts,
     db_contents: DbContents,
 ) -> None:
     """Get all splits."""
@@ -121,7 +120,7 @@ def get_splits(
             memo=row["memo"],
             value=Decimal(row["value_num"]),
         )
-        if account in accounts_to_read:
+        if account in accounts.accounts_to_read:
             db_contents.split_store[row["guid"]] = split
 
 
