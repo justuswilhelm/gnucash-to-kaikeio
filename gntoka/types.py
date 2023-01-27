@@ -149,7 +149,6 @@ class Configuration:
 class DbContents:
     """Store everything we have read from GnuCash."""
 
-    gnucash_account_store: GnuCashAccountStore = field(default_factory=dict)
     account_store: AccountStore = field(default_factory=dict)
     transaction_store: TransactionStore = field(default_factory=dict)
     split_store: SplitStore = field(default_factory=dict)

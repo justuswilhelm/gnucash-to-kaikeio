@@ -10,7 +10,6 @@ from typing import (
     Mapping,
     Optional,
     Sequence,
-    Tuple,
     cast,
 )
 
@@ -98,7 +97,7 @@ def find_parent(
 
 def get_accounts(
     con: sqlite3.Connection,
-) -> Tuple[GnuCashAccountStore, AccountStore]:
+) -> AccountStore:
     """Get all accounts and link them with Kaikeio information."""
     gnucash_account_store = fetch_gnucash_accounts(con)
     account_store = {
@@ -108,7 +107,7 @@ def get_accounts(
         )
         for account in gnucash_account_store.values()
     }
-    return gnucash_account_store, account_store
+    return account_store
 
 
 def get_transactions(con: sqlite3.Connection, db_contents: DbContents) -> None:
