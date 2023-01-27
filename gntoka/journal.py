@@ -26,7 +26,7 @@ from .types import (
 
 def make_journal_entry(
     slip_number: int,
-    伝票日付: date,
+    slip_date: date,
     借方科目コード: str,
     借方科目名称: str,
     借方補助コード: str,
@@ -46,7 +46,7 @@ def make_journal_entry(
     return JournalEntry(
         slip_number=str(slip_number),
         line_number=str(line_number) if line_number else "1",
-        伝票日付=util.format_date(伝票日付),
+        slip_date=util.format_date(slip_date),
         借方科目コード=借方科目コード,
         借方科目名称=借方科目名称,
         借方補助コード=借方補助コード,
@@ -98,7 +98,7 @@ def build_simple_journal_entry(
     tax = Decimal("0")
     return make_journal_entry(
         slip_number=number,
-        伝票日付=date,
+        slip_date=date,
         借方科目コード=debit.account.account,
         借方科目名称=debit.account.account,
         借方補助コード=debit.account.account_supplementary,
@@ -135,7 +135,7 @@ def build_composite_journal_entry(
         )
         entry = make_journal_entry(
             slip_number=number,
-            伝票日付=debit.transaction.date,
+            slip_date=debit.transaction.date,
             借方科目コード=debit.account.account,
             借方科目名称=debit.account.account,
             借方補助コード=debit.account.account_supplementary,
@@ -164,7 +164,7 @@ def build_composite_journal_entry(
         )
         entry = make_journal_entry(
             slip_number=number,
-            伝票日付=credit.transaction.date,
+            slip_date=credit.transaction.date,
             借方科目コード=credit.account.account,
             借方科目名称=credit.account.account,
             借方補助コード=credit.account.account_supplementary,

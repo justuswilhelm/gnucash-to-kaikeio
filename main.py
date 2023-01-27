@@ -50,7 +50,7 @@ def build_journal(
     for tx in transaction_splits_values:
         account_journal += journal.build_journal_entries(counter, tx)
 
-    account_journal.sort(key=lambda a: a.伝票日付)
+    account_journal.sort(key=lambda a: a.slip_date)
     return account_journal
 
 

@@ -75,7 +75,7 @@ class JournalEntry:
 
     slip_number: str
     line_number: str
-    伝票日付: str
+    slip_date: str
     借方科目コード: str
     借方科目名称: str
     借方補助コード: str
