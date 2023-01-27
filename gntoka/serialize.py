@@ -51,7 +51,43 @@ JournalEntryDict = TypedDict(
     },
 )
 
-journal_entry_columns = list(JournalEntryDict.__required_keys__)
+# XXX I wish we could use __required_keys__ here, but it is not guaranteed to
+# be ordered
+journal_entry_columns = (
+    "伝票番号",
+    "行番号",
+    "伝票日付",
+    "借方科目コード",
+    "借方科目名称",
+    "借方補助コード",
+    "借方補助科目名称",
+    "借方部門コード",
+    "借方部門名称",
+    "借方課税区分",
+    "借方事業分類",
+    "借方消費税処理方法",
+    "借方消費税率",
+    "借方金額",
+    "借方消費税額",
+    "貸方科目コード",
+    "貸方科目名称",
+    "貸方補助コード",
+    "貸方補助科目名称",
+    "貸方部門コード",
+    "貸方部門名称",
+    "貸方課税区分",
+    "貸方事業分類",
+    "貸方消費税処理方法",
+    "貸方消費税率",
+    "貸方金額",
+    "貸方消費税額",
+    "摘要",
+    "補助摘要",
+    "メモ",
+    "付箋１",
+    "付箋２",
+    "伝票種別",
+)
 
 
 class AccountLinkDict(TypedDict):
