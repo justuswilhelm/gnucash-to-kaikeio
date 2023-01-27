@@ -16,6 +16,7 @@ from . import (
     util,
 )
 from .types import (
+    Account,
     JournalEntries,
     JournalEntry,
     JournalEntryCounter,
@@ -27,22 +28,45 @@ from .types import (
 def make_journal_entry(
     slip_number: int,
     slip_date: date,
-    借方科目コード: str,
-    借方科目名称: str,
-    借方補助コード: str,
-    借方補助科目名称: str,
-    借方金額: Decimal,
-    借方消費税額: Decimal,
-    貸方科目コード: str,
-    貸方科目名称: str,
-    貸方補助コード: str,
-    貸方補助科目名称: str,
-    貸方金額: Decimal,
-    貸方消費税額: Decimal,
+    debit_account: Optional[Account],
+    credit_account: Optional[Account],
+    debit_amount: Optional[Decimal],
+    credit_amount: Optional[Decimal],
     メモ: str,
     line_number: Optional[int] = None,
 ) -> JournalEntry:
     """Make a JournalEntry."""
+    if debit_account:
+        借方科目コード = debit_account.account
+        借方科目名称 = debit_account.account_name
+        借方補助コード = debit_account.account_supplementary
+        借方補助科目名称 = debit_account.account_supplementary_name
+    else:
+        借方科目コード = ""
+        借方科目名称 = ""
+        借方補助コード = ""
+        借方補助科目名称 = ""
+    if credit_account:
+        貸方科目コード = credit_account.account
+        貸方科目名称 = credit_account.account_name
+        貸方補助コード = credit_account.account_supplementary
+        貸方補助科目名称 = credit_account.account_supplementary
+    else:
+        貸方科目コード = ""
+        貸方科目名称 = ""
+        貸方補助コード = ""
+        貸方補助科目名称 = ""
+
+    # XXX redundant
+    if debit_amount:
+        借方金額 = debit_amount
+    else:
+        借方金額 = Decimal(0)
+    if credit_amount:
+        貸方金額 = credit_amount
+    else:
+        貸方金額 = Decimal(0)
+
     return JournalEntry(
         slip_number=slip_number,
         line_number=line_number or 1,
@@ -70,7 +94,7 @@ def make_journal_entry(
         貸方消費税処理方法="3",
         貸方消費税率="0%",
         貸方金額=貸方金額,
-        貸方消費税額=貸方消費税額,
+        貸方消費税額=Decimal("0"),
         # XXX This should have the description
         摘要="",
         # XXX This should have the memo
@@ -95,22 +119,13 @@ def build_simple_journal_entry(
         ]
     ).replace("\xa0", " ")
     value = max(debit.value, credit.value)
-    tax = Decimal("0")
     return make_journal_entry(
         slip_number=number,
         slip_date=date,
-        借方科目コード=debit.account.account,
-        借方科目名称=debit.account.account,
-        借方補助コード=debit.account.account_supplementary,
-        借方補助科目名称=debit.account.account_supplementary_name,
-        借方金額=value,
-        借方消費税額=tax,
-        貸方科目コード=credit.account.account,
-        貸方科目名称=credit.account.account_name,
-        貸方補助コード=credit.account.account_supplementary,
-        貸方補助科目名称=credit.account.account_supplementary_name,
-        貸方金額=value,
-        貸方消費税額=tax,
+        debit_account=debit.account,
+        credit_account=credit.account,
+        debit_amount=value,
+        credit_amount=value,
         メモ=memo,
     )
 
@@ -136,18 +151,10 @@ def build_composite_journal_entry(
         entry = make_journal_entry(
             slip_number=number,
             slip_date=debit.transaction.date,
-            借方科目コード=debit.account.account,
-            借方科目名称=debit.account.account,
-            借方補助コード=debit.account.account_supplementary,
-            借方補助科目名称=debit.account.account_supplementary_name,
-            借方金額=debit.value,
-            借方消費税額=Decimal("0"),
-            貸方科目コード="",
-            貸方科目名称="",
-            貸方補助コード="",
-            貸方補助科目名称="",
-            貸方金額=debit.value,
-            貸方消費税額=Decimal("0"),
+            debit_account=debit.account,
+            credit_account=None,
+            debit_amount=debit.value,
+            credit_amount=None,
             メモ=memo,
             line_number=next(line_number),
         )
@@ -165,18 +172,10 @@ def build_composite_journal_entry(
         entry = make_journal_entry(
             slip_number=number,
             slip_date=credit.transaction.date,
-            借方科目コード=credit.account.account,
-            借方科目名称=credit.account.account,
-            借方補助コード=credit.account.account_supplementary,
-            借方補助科目名称=credit.account.account_supplementary_name,
-            借方金額=credit.value,
-            借方消費税額=Decimal("0"),
-            貸方科目コード="",
-            貸方科目名称="",
-            貸方補助コード="",
-            貸方補助科目名称="",
-            貸方金額=Decimal(0),
-            貸方消費税額=Decimal("0"),
+            debit_account=None,
+            credit_account=credit.account,
+            debit_amount=None,
+            credit_amount=credit.value,
             メモ=memo,
             line_number=next(line_number),
         )

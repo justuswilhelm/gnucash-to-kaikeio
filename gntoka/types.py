@@ -20,6 +20,7 @@ from typing import (
     Iterator,
     List,
     Mapping,
+    Optional,
     Set,
 )
 
@@ -86,7 +87,7 @@ class JournalEntry:
     借方事業分類: str
     借方消費税処理方法: str
     借方消費税率: str
-    借方金額: Decimal
+    借方金額: Optional[Decimal]
     借方消費税額: Decimal
     貸方科目コード: str
     貸方科目名称: str
@@ -98,7 +99,7 @@ class JournalEntry:
     貸方事業分類: str
     貸方消費税処理方法: str
     貸方消費税率: str
-    貸方金額: Decimal
+    貸方金額: Optional[Decimal]
     貸方消費税額: Decimal
     摘要: str
     補助摘要: str
