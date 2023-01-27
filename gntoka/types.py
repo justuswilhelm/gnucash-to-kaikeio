@@ -74,7 +74,7 @@ class JournalEntry:
     """A journal entry."""
 
     slip_number: int
-    line_number: str
+    line_number: int
     slip_date: str
     借方科目コード: str
     借方科目名称: str
