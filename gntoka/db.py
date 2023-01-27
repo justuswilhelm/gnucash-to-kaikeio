@@ -46,14 +46,10 @@ def dict_factory(cursor: sqlite3.Cursor, row: Sequence[str]) -> Dict[str, str]:
     return d
 
 
-def get_accounts(
-    con: sqlite3.Connection,
-    account_info: AccountInfo,
-    db_contents: DbContents,
-) -> Accounts:
-    """Get all accounts."""
-    accounts = Accounts()
-
+def fetch_gnucash_accounts(
+    con: sqlite3.Connection, db_contents: DbContents
+) -> None:
+    """Fetch accounts in GnuCash."""
     cur = con.cursor()
     cur.execute(select_accounts)
     for row in cur.fetchall():
@@ -67,6 +63,17 @@ def get_accounts(
             account_name="",
             account_supplementary_name="",
         )
+
+
+def get_accounts(
+    con: sqlite3.Connection,
+    account_info: AccountInfo,
+    db_contents: DbContents,
+) -> Accounts:
+    """Get all accounts."""
+    accounts = Accounts()
+
+    fetch_gnucash_accounts(con, db_contents)
 
     for account in db_contents.account_store.values():
         acc_name = account_name(account, db_contents.account_store)
