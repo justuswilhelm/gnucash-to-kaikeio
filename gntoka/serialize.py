@@ -99,6 +99,16 @@ class AccountLinkDict(TypedDict):
     account_supplementary_name: str
 
 
+class SplitDict(TypedDict):
+    """Encode GnuCash split."""
+
+    guid: str
+    tx_guid: str
+    account_guid: str
+    memo: str
+    value_num: str
+
+
 # Serializers
 def serialize_journal_entry(value: types.JournalEntry) -> JournalEntryDict:
     """Serialize a journal entry."""

@@ -9,8 +9,12 @@ from decimal import (
 from typing import (
     Dict,
     Sequence,
+    cast,
 )
 
+from .serialize import (
+    SplitDict,
+)
 from .types import (
     Account,
     AccountInfo,
@@ -128,21 +132,23 @@ def get_splits(
     cur = con.cursor()
     cur.execute(select_splits)
     for row in cur.fetchall():
-        account = db_contents.account_store.get(row["account_guid"])
+        split_dict = cast(SplitDict, row)
+        account = db_contents.account_store.get(split_dict["account_guid"])
         if account is None:
             raise ValueError(
-                f"Expected to find account for {row} with account_guid "
-                f"{row['account_guid']} among the imported GnuCash accounts"
+                f"Expected to find account for {split_dict} with account_guid "
+                f"{split_dict['account_guid']} among the imported GnuCash "
+                "accounts"
             )
         split = Split(
-            guid=row["guid"],
+            guid=split_dict["guid"],
             account=account,
-            transaction=db_contents.transaction_store[row["tx_guid"]],
-            memo=row["memo"],
-            value=Decimal(row["value_num"]),
+            transaction=db_contents.transaction_store[split_dict["tx_guid"]],
+            memo=split_dict["memo"],
+            value=Decimal(split_dict["value_num"]),
         )
         if account.guid in accounts.accounts_to_read:
-            db_contents.split_store[row["guid"]] = split
+            db_contents.split_store[split.guid] = split
 
 
 def open_connection(config: Configuration) -> sqlite3.Connection:
