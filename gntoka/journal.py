@@ -27,13 +27,14 @@ from .types import (
 
 def make_journal_entry(
     slip_number: int,
+    line_number: int,
     slip_date: date,
     debit_account: Optional[Account],
     credit_account: Optional[Account],
     debit_amount: Optional[Decimal],
     credit_amount: Optional[Decimal],
-    メモ: str,
-    line_number: Optional[int] = None,
+    description: str,
+    description_supplementary: str,
 ) -> JournalEntry:
     """Make a JournalEntry."""
     if debit_account:
@@ -59,10 +60,12 @@ def make_journal_entry(
 
     # XXX redundant
     if debit_amount:
+        assert debit_amount >= 0
         借方金額 = debit_amount
     else:
         借方金額 = Decimal(0)
     if credit_amount:
+        assert credit_amount >= 0
         貸方金額 = credit_amount
     else:
         貸方金額 = Decimal(0)
@@ -96,10 +99,11 @@ def make_journal_entry(
         貸方金額=貸方金額,
         貸方消費税額=Decimal("0"),
         # XXX This should have the description
-        摘要="",
+        摘要=description,
         # XXX This should have the memo
-        補助摘要="",
-        メモ=メモ,
+        補助摘要=description_supplementary,
+        # Maybe insert the conversion date here?
+        メモ="",
         付箋１="0",
         付箋２="0",
         伝票種別="0",
@@ -107,31 +111,43 @@ def make_journal_entry(
 
 
 def build_simple_journal_entry(
-    number: int, debit: Split, credit: Split
+    slip_number: int,
+    line_number: int,
+    debit: Optional[Split],
+    credit: Optional[Split],
 ) -> JournalEntry:
     """Build a simple journal entry."""
-    date = credit.transaction.date
-    memo = " ".join(
-        [
-            credit.transaction.description,
-            credit.memo,
-            debit.memo,
-        ]
-    ).replace("\xa0", " ")
-    value = max(debit.value, credit.value)
+    memo_parts = []
+    if debit:
+        date = debit.transaction.date
+        description = debit.transaction.description
+        amount = debit.value
+        memo_parts.append(debit.memo)
+    elif credit:
+        date = credit.transaction.date
+        description = credit.transaction.description
+        amount = abs(credit.value)
+        memo_parts.append(credit.memo)
+    # TODO figure out how to check this at compile time
+    else:
+        raise ValueError("Either debit or credit must not be None")
+    memo = util.clean_text(" ".join(memo_parts))
+
     return make_journal_entry(
-        slip_number=number,
+        slip_number=slip_number,
+        line_number=line_number,
         slip_date=date,
-        debit_account=debit.account,
-        credit_account=credit.account,
-        debit_amount=value,
-        credit_amount=value,
-        メモ=memo,
+        debit_account=debit.account if debit else None,
+        credit_account=credit.account if credit else None,
+        debit_amount=amount,
+        credit_amount=amount,
+        description=description,
+        description_supplementary=memo,
     )
 
 
 def build_composite_journal_entry(
-    number: int,
+    slip_number: int,
     debits: TransactionSplit,
     credits: TransactionSplit,
 ) -> JournalEntries:
@@ -139,45 +155,19 @@ def build_composite_journal_entry(
     line_number = count(1)
     result = []
     for debit in debits:
-        # TODO
-        # We can just use build_simple_journal_entry and substitute credit
-        # for 複合
-        memo = " ".join(
-            [
-                debit.transaction.description,
-                debit.memo,
-            ]
-        )
-        entry = make_journal_entry(
-            slip_number=number,
-            slip_date=debit.transaction.date,
-            debit_account=debit.account,
-            credit_account=None,
-            debit_amount=debit.value,
-            credit_amount=None,
-            メモ=memo,
+        entry = build_simple_journal_entry(
+            slip_number=slip_number,
             line_number=next(line_number),
+            debit=debit,
+            credit=None,
         )
         result.append(entry)
-    for credit in debits:
-        # TODO
-        # We can just use build_simple_journal_entry and substitute credit
-        # for 複合
-        memo = " ".join(
-            [
-                credit.transaction.description,
-                credit.memo,
-            ]
-        )
-        entry = make_journal_entry(
-            slip_number=number,
-            slip_date=credit.transaction.date,
-            debit_account=None,
-            credit_account=credit.account,
-            debit_amount=None,
-            credit_amount=credit.value,
-            メモ=memo,
+    for credit in credits:
+        entry = build_simple_journal_entry(
+            slip_number=slip_number,
             line_number=next(line_number),
+            debit=None,
+            credit=credit,
         )
         result.append(entry)
     return result
@@ -191,12 +181,12 @@ def build_journal_entries(
     assert sum(split.value for split in tx) == Decimal(0), tx
     debits = list(util.get_debits(tx))
     credits = list(util.get_credits(tx))
-    number = next(counter)
+    slip_number = next(counter)
     if len(debits) == 1 and len(credits) == 1:
         # Simple split
         (debit,) = debits
         (credit,) = credits
-        return [build_simple_journal_entry(number, debit, credit)]
+        return [build_simple_journal_entry(slip_number, 1, debit, credit)]
         # Compound split
     else:
-        return build_composite_journal_entry(number, debits, credits)
+        return build_composite_journal_entry(slip_number, debits, credits)
