@@ -89,10 +89,13 @@ def get_splits(
                 f"{split_dict['account_guid']} among the imported GnuCash "
                 "accounts"
             )
+        transaction = db_contents.transaction_store.get(split_dict["tx_guid"])
+        if transaction is None:
+            continue
         split = Split(
             guid=split_dict["guid"],
             account=account,
-            transaction=db_contents.transaction_store[split_dict["tx_guid"]],
+            transaction=transaction,
             memo=split_dict["memo"],
             value=Decimal(split_dict["value_num"]),
         )
