@@ -26,6 +26,7 @@ from .types import (
 )
 
 
+# Maybe we can have an account / amount tuple here?
 def make_journal_entry(
     slip_number: int,
     line_number: int,
@@ -71,6 +72,8 @@ def make_journal_entry(
     else:
         貸方金額 = Decimal(0)
 
+    memo = f"Exported {date.today().isoformat()} from GnuCash"
+
     return JournalEntry(
         slip_number=slip_number,
         line_number=line_number or 1,
@@ -99,12 +102,9 @@ def make_journal_entry(
         貸方消費税率=ConsumptionTaxRate.ZERO,
         貸方金額=貸方金額,
         貸方消費税額=Decimal("0"),
-        # XXX This should have the description
         摘要=description,
-        # XXX This should have the memo
         補助摘要=description_supplementary,
-        # Maybe insert the conversion date here?
-        メモ="",
+        メモ=memo,
         付箋１="0",
         付箋２="0",
         伝票種別="0",

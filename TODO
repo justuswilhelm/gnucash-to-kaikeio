@@ -6,6 +6,9 @@
 - Parse guids as 16 byte uuids
 - Join everything into splits table and process information from there. That
 way we only need one SQL query for everything
+- The journal entry type should have English names, and only during
+serialization will we switch to Japanese
+- Get rid of all stateful list mutations, like sorted, append, and so on
 
 # Won't do for now
 
