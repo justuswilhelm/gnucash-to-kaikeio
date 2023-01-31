@@ -2,8 +2,6 @@
 
 - Add py test
 - Force complexity down
-- Write original values into JournalEntry (date etc.) and only serialize them
-when writing to csv
 - Allow specifying start and end date
 - Allow specifying start number
 
