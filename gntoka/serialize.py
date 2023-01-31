@@ -177,11 +177,11 @@ def deserialize_account(account: AccountDict) -> types.Account:
     """Deserialize an account fetched from GnuCash."""
     return types.Account(
         guid=account["guid"],
-        account_code=account["code"],
-        account_name=account["name"],
-        account_supplementary_code=account["supplementary_code"]
+        code=account["code"],
+        name=account["name"],
+        supplementary_code=account["supplementary_code"]
         or constants.KAIKEIO_NO_ACCOUNT,
-        account_supplementary_name=account["supplementary_name"] or "",
+        supplementary_name=account["supplementary_name"] or "",
     )
 
 

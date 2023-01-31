@@ -34,13 +34,11 @@ class Account:
     """An account."""
 
     guid: str
-    # TODO just code/name
-    account_code: str
-    account_name: str
+    code: str
+    name: str
     # TODO This should be Optional
-    # TODO rename to just supplementary_*
-    account_supplementary_code: str
-    account_supplementary_name: str
+    supplementary_code: str
+    supplementary_name: str
 
 
 @dataclass
