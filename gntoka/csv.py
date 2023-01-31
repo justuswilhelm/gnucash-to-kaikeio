@@ -1,14 +1,12 @@
 """CSV related functionality."""
 import csv
-from typing import (
-    Iterable,
-)
 
 from . import (
     serialize,
 )
 from .types import (
     Configuration,
+    JournalEntries,
 )
 
 
@@ -24,7 +22,8 @@ class KaikeoDialect(csv.Dialect):
 
 # This should handle serialization directly
 def write_journal_entries(
-    config: Configuration, entry_dicts: Iterable[serialize.JournalEntryDict]
+    config: Configuration,
+    entries: JournalEntries,
 ) -> None:
     """Write the journal entries."""
     with config.journal_out_csv.open("w", encoding="shift_jis") as fd:
@@ -34,5 +33,5 @@ def write_journal_entries(
             dialect=KaikeoDialect,
         )
         writer.writeheader()
-        for entry_dict in entry_dicts:
-            writer.writerow(entry_dict)
+        for entry in entries:
+            writer.writerow(serialize.serialize_journal_entry(entry))

@@ -12,7 +12,6 @@ import toml
 from gntoka import (
     db,
     journal,
-    serialize,
 )
 from gntoka.csv import (
     write_journal_entries,
@@ -39,11 +38,12 @@ def populate_transaction_splits(db_contents: DbContents) -> None:
 
 def build_journal(
     transaction_splits_values: TransactionSplits,
+    start_num: int,
 ) -> JournalEntries:
     """Build a journal."""
     account_journal: JournalEntries = []
 
-    counter: JournalEntryCounter = count(start=1)
+    counter: JournalEntryCounter = count(start=start_num)
 
     for tx in transaction_splits_values:
         account_journal += journal.build_journal_entries(counter, tx)
@@ -73,11 +73,10 @@ def main(config: Configuration) -> None:
         key=lambda tx: tx[0].transaction.date,
     )
 
-    account_journal: JournalEntries = build_journal(transaction_splits_values)
-    entry_dicts = [
-        serialize.serialize_journal_entry(e) for e in account_journal
-    ]
-    write_journal_entries(config, entry_dicts)
+    account_journal: JournalEntries = build_journal(
+        transaction_splits_values, config.start_num
+    )
+    write_journal_entries(config, account_journal)
 
 
 if __name__ == "__main__":
@@ -95,5 +94,6 @@ if __name__ == "__main__":
         ),
         start_date=config_dict["start_date"],
         end_date=config_dict["end_date"],
+        start_num=config_dict["start_num"],
     )
     main(configuration)

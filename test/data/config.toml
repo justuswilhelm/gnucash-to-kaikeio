@@ -3,3 +3,4 @@ account_links_csv = "account_links.csv"
 journal_out_csv = "journal.csv"
 start_date = 2023-01-01
 end_date = 2023-12-31
+start_num = 1337

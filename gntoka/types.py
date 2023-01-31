@@ -130,6 +130,7 @@ class Configuration:
     start_date: date
     # Inclusive
     end_date: date
+    start_num: int
 
 
 @dataclass
