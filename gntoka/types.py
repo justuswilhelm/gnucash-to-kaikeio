@@ -30,25 +30,15 @@ CsvRow = Mapping[str, str]
 
 
 @dataclass
-class GnuCashAccount:
-    """GnuCash representation of an account."""
-
-    code: str
-    guid: str
-    name: str
-    # TODO remove
-    parent_name: str
-    parent_code: str
-
-
-@dataclass
 class Account:
     """An account."""
 
-    gnucash_account: GnuCashAccount
+    guid: str
+    # TODO just code/name
     account_code: str
     account_name: str
     # TODO This should be Optional
+    # TODO rename to just supplementary_*
     account_supplementary_code: str
     account_supplementary_name: str
 
@@ -121,7 +111,6 @@ class JournalEntry:
     伝票種別: str
 
 
-GnuCashAccountStore = Dict[str, GnuCashAccount]
 AccountStore = Dict[str, Account]
 AccountIds = Set[str]
 TransactionStore = Dict[str, Transaction]

@@ -27,8 +27,6 @@ from .types import (
     AccountStore,
     Configuration,
     DbContents,
-    GnuCashAccount,
-    GnuCashAccountStore,
     Split,
     TransactionStore,
 )
@@ -50,57 +48,23 @@ def dict_factory(
     return {col[0]: row[idx] for idx, col in enumerate(cursor.description)}
 
 
-def fetch_gnucash_accounts(con: sqlite3.Connection) -> GnuCashAccountStore:
-    """Fetch accounts in GnuCash."""
-    cur = con.cursor()
-    cur.execute(select_accounts)
-    return {
-        row["guid"]: GnuCashAccount(
-            guid=row["guid"],
-            code=row["code"],
-            name=row["name"],
-            parent_name=row["parent_name"],
-            parent_code=row["parent_code"],
-        )
-        for row in cur.fetchall()
-    }
-
-
-def make_linked_account(
-    account: GnuCashAccount,
-) -> Account:
-    """Link GnuCash and Kaikeio information in one account."""
-    if account.parent_code:
-        name = account.parent_name
-        code = account.parent_code
-        name_supplementary = account.name
-        code_supplementary = account.code
-    else:
-        name = account.name
-        code = account.code
-        name_supplementary = ""
-        code_supplementary = KAIKEIO_NO_ACCOUNT
-    return Account(
-        gnucash_account=account,
-        account_code=code,
-        account_supplementary_code=code_supplementary,
-        account_name=name,
-        account_supplementary_name=name_supplementary,
-    )
-
-
 def get_accounts(
     con: sqlite3.Connection,
 ) -> AccountStore:
     """Get all accounts and link them with Kaikeio information."""
-    gnucash_account_store = fetch_gnucash_accounts(con)
-    account_store = {
-        account.guid: make_linked_account(
-            account,
+    cur = con.cursor()
+    cur.execute(select_accounts)
+    return {
+        row["guid"]: Account(
+            guid=row["guid"],
+            account_code=row["code"],
+            account_name=row["name"],
+            account_supplementary_code=row["supplementary_code"]
+            or KAIKEIO_NO_ACCOUNT,
+            account_supplementary_name=row["supplementary_name"] or "",
         )
-        for account in gnucash_account_store.values()
+        for row in cur.fetchall()
     }
-    return account_store
 
 
 def get_transactions(
