@@ -42,13 +42,11 @@ class GnuCashAccount:
     parent_code: str
 
 
-# TODO use composition, not inheritance
-# Eventually we should store a composite containing GnuCashAccount and
-# AccountLink
 @dataclass
-class Account(GnuCashAccount):
+class Account:
     """An account."""
 
+    gnucash_account: GnuCashAccount
     account: str
     # TODO This should be Optional
     account_supplementary: str

@@ -81,15 +81,11 @@ def make_linked_account(
         name_supplementary = ""
         code_supplementary = KAIKEIO_NO_ACCOUNT
     return Account(
-        guid=account.guid,
-        code=account.code,
-        _name=account._name,
+        gnucash_account=account,
         account=code,
         account_supplementary=code_supplementary,
         account_name=name,
         account_supplementary_name=name_supplementary,
-        parent_code=account.parent_code,
-        parent_name=account.parent_name,
     )
 
 
