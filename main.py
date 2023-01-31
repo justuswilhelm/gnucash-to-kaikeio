@@ -30,6 +30,8 @@ from gntoka.types import (
 )
 
 
+# TODO when we receive all splits in one big query (instead of 3) from the db,
+# we should just group them by transaction uid here.
 def populate_transaction_splits(db_contents: DbContents) -> None:
     """Populate transaction_splits."""
     for split in db_contents.split_store.values():
@@ -45,6 +47,7 @@ def build_journal(
 
     counter: JournalEntryCounter = count(start=start_num)
 
+    # TODO we could rewrite this as a sorted(.flatten)
     for tx in transaction_splits_values:
         account_journal += journal.build_journal_entries(counter, tx)
 
