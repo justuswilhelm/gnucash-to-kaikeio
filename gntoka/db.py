@@ -13,6 +13,9 @@ from typing import (
     cast,
 )
 
+from .constants import (
+    KAIKEIO_NO_ACCOUNT,
+)
 from .serialize import (
     SplitDict,
     deserialize_transaction,
@@ -74,7 +77,7 @@ def make_linked_account(
         name = account._name
         code = account.code
         name_supplementary = ""
-        code_supplementary = ""
+        code_supplementary = KAIKEIO_NO_ACCOUNT
     return Account(
         guid=account.guid,
         code=account.code,
