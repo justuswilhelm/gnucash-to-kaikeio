@@ -2,7 +2,6 @@
 
 - Add py test
 - Force complexity down
-- Allow specifying start and end date
 - Allow specifying start number
 
 # Won't do for now

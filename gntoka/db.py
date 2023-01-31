@@ -1,5 +1,8 @@
 """DB access functions."""
 import sqlite3
+from datetime import (
+    date,
+)
 from decimal import (
     Decimal,
 )
@@ -114,10 +117,18 @@ def get_accounts(
     return account_store
 
 
-def get_transactions(con: sqlite3.Connection) -> TransactionStore:
+def get_transactions(
+    con: sqlite3.Connection,
+    start_date: date,
+    end_date: date,
+) -> TransactionStore:
     """Get all transactions."""
     cur = con.cursor()
-    cur.execute(select_transactions)
+    query = {
+        "start_date": start_date,
+        "end_date": end_date,
+    }
+    cur.execute(select_transactions, query)
     return {
         tx.guid: tx
         for tx in (deserialize_transaction(row) for row in cur.fetchall())

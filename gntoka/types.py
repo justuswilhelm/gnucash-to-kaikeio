@@ -143,6 +143,9 @@ class Configuration:
 
     gnucash_db: Path
     journal_out_csv: Path
+    start_date: date
+    # Inclusive
+    end_date: date
 
 
 @dataclass

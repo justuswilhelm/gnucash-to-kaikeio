@@ -58,7 +58,11 @@ def main(config: Configuration) -> None:
 
     db_contents = DbContents(
         account_store=get_accounts(con),
-        transaction_store=get_transactions(con),
+        transaction_store=get_transactions(
+            con,
+            config.start_date,
+            config.end_date,
+        ),
     )
     get_splits(con, db_contents)
     populate_transaction_splits(db_contents)
@@ -89,5 +93,7 @@ if __name__ == "__main__":
         journal_out_csv=Path(
             config_path_parent / config_dict["journal_out_csv"]
         ),
+        start_date=config_dict["start_date"],
+        end_date=config_dict["end_date"],
     )
     main(configuration)
