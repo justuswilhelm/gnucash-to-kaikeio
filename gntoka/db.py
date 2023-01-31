@@ -11,7 +11,6 @@ from pathlib import (
 )
 from typing import (
     Mapping,
-    Optional,
     Sequence,
     cast,
 )
@@ -60,7 +59,8 @@ def fetch_gnucash_accounts(con: sqlite3.Connection) -> GnuCashAccountStore:
             guid=row["guid"],
             code=row["code"],
             _name=row["name"],
-            parent_guid=row["parent_guid"],
+            parent_name=row["parent_name"],
+            parent_code=row["parent_code"],
         )
         for row in cur.fetchall()
     }
@@ -68,12 +68,11 @@ def fetch_gnucash_accounts(con: sqlite3.Connection) -> GnuCashAccountStore:
 
 def make_linked_account(
     account: GnuCashAccount,
-    parent: Optional[GnuCashAccount],
 ) -> Account:
     """Link GnuCash and Kaikeio information in one account."""
-    if parent and parent.code:
-        name = parent._name
-        code = parent.code
+    if account.parent_code:
+        name = account.parent_name
+        code = account.parent_code
         name_supplementary = account._name
         code_supplementary = account.code
     else:
@@ -85,21 +84,13 @@ def make_linked_account(
         guid=account.guid,
         code=account.code,
         _name=account._name,
-        parent_guid=account.parent_guid,
         account=code,
         account_supplementary=code_supplementary,
         account_name=name,
         account_supplementary_name=name_supplementary,
-        parent=parent,
+        parent_code=account.parent_code,
+        parent_name=account.parent_name,
     )
-
-
-# Can we do this in SQL? We could just join the account with its parent
-def find_parent(
-    accounts: GnuCashAccountStore, account: GnuCashAccount
-) -> Optional[GnuCashAccount]:
-    """Find the parent for an account."""
-    return accounts.get(account.parent_guid)
 
 
 def get_accounts(
@@ -110,7 +101,6 @@ def get_accounts(
     account_store = {
         account.guid: make_linked_account(
             account,
-            find_parent(gnucash_account_store, account),
         )
         for account in gnucash_account_store.values()
     }

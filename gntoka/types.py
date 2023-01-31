@@ -35,8 +35,11 @@ class GnuCashAccount:
 
     code: str
     guid: str
+    # TODO rename to nae
     _name: str
-    parent_guid: str
+    # TODO remove
+    parent_name: str
+    parent_code: str
 
 
 # TODO use composition, not inheritance
@@ -52,7 +55,6 @@ class Account(GnuCashAccount):
     account_name: str
     # TODO This should be Optional
     account_supplementary_name: str
-    parent: Optional[GnuCashAccount]
 
 
 @dataclass
