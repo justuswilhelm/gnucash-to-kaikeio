@@ -1,0 +1,3 @@
+gnucash_db = "journal.gnucash"
+account_links_csv = "account_links.csv"
+journal_out_csv = "journal.csv"

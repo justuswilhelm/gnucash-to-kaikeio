@@ -1,7 +1,6 @@
 # TODO
 
 - Add py test
-- Add sample config / sample input and output
 - Force complexity down
 - Write original values into JournalEntry (date etc.) and only serialize them
 when writing to csv

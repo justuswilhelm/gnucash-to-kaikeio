@@ -1,0 +1,11 @@
+name,account,account_supplementary,account_name,account_supplementary_name
+Assets:Current Assets:Petty Cash,101,,現金,
+Assets:Current Assets:Savings Account,102,,預金口座,
+Expenses:Dining,301,,接待交際費,
+Expenses:Charity,303,,雑費,ドネーション,
+Equity:Opening Balances,501,,期首残高,
+Income:Sales,401,,売上高,
+Income:Reimbursed Expenses,403,001,雑収入,立替,
+Expenses:Postage and Delivery,402,,通信費,,
+Income:Interest Income,403,002,雑収入,受取利息,
+Income:Other Income,403,,雑収入,
