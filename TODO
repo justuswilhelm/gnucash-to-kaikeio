@@ -4,6 +4,8 @@
 - Force complexity down
 - Allow specifying start number
 - Parse guids as 16 byte uuids
+- Join everything into splits table and process information from there. That
+way we only need one SQL query for everything
 
 # Won't do for now
 
