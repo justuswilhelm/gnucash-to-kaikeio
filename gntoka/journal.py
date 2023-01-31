@@ -121,30 +121,39 @@ def build_simple_journal_entry(
     credit: Optional[Split],
 ) -> JournalEntry:
     """Build a simple journal entry."""
+    if not (credit or debit):
+        raise ValueError("Either debit or credit must not be None")
+
     memo_parts = []
+    debit_account = None
+    debit_amount = None
+    credit_account = None
+    credit_amount = None
+
     if debit:
         date = debit.transaction.date
         description = debit.transaction.description
-        amount = debit.value
+        debit_account = debit.account
+        debit_amount = debit.value
         memo_parts.append(debit.memo)
-    elif credit:
+
+    if credit:
         date = credit.transaction.date
         description = credit.transaction.description
-        amount = abs(credit.value)
+        credit_account = credit.account
+        credit_amount = abs(credit.value)
         memo_parts.append(credit.memo)
-    # TODO figure out how to check this at compile time
-    else:
-        raise ValueError("Either debit or credit must not be None")
+
     memo = util.clean_text(" ".join(memo_parts))
 
     return make_journal_entry(
         slip_number=slip_number,
         line_number=line_number,
         slip_date=date,
-        debit_account=debit.account if debit else None,
-        credit_account=credit.account if credit else None,
-        debit_amount=amount,
-        credit_amount=amount,
+        debit_account=debit_account,
+        credit_account=credit_account,
+        debit_amount=debit_amount,
+        credit_amount=credit_amount,
         description=description,
         description_supplementary=memo,
     )
