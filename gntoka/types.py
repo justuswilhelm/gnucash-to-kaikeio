@@ -47,11 +47,10 @@ class Account:
     """An account."""
 
     gnucash_account: GnuCashAccount
-    account: str
-    # TODO This should be Optional
-    account_supplementary: str
+    account_code: str
     account_name: str
     # TODO This should be Optional
+    account_supplementary_code: str
     account_supplementary_name: str
 
 

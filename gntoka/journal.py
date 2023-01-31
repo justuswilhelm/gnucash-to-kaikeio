@@ -42,9 +42,9 @@ def make_journal_entry(
 ) -> JournalEntry:
     """Make a JournalEntry."""
     if debit_account:
-        借方科目コード = debit_account.account
+        借方科目コード = debit_account.account_code
         借方科目名称 = debit_account.account_name
-        借方補助コード = debit_account.account_supplementary
+        借方補助コード = debit_account.account_supplementary_code
         借方補助科目名称 = debit_account.account_supplementary_name
     else:
         借方科目コード = KAIKEIO_NO_ACCOUNT
@@ -52,10 +52,10 @@ def make_journal_entry(
         借方補助コード = KAIKEIO_NO_ACCOUNT
         借方補助科目名称 = ""
     if credit_account:
-        貸方科目コード = credit_account.account
+        貸方科目コード = credit_account.account_code
         貸方科目名称 = credit_account.account_name
-        貸方補助コード = credit_account.account_supplementary
-        貸方補助科目名称 = credit_account.account_supplementary
+        貸方補助コード = credit_account.account_supplementary_code
+        貸方補助科目名称 = credit_account.account_supplementary_name
     else:
         貸方科目コード = KAIKEIO_NO_ACCOUNT
         貸方科目名称 = ""
