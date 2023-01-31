@@ -58,7 +58,7 @@ def fetch_gnucash_accounts(con: sqlite3.Connection) -> GnuCashAccountStore:
         row["guid"]: GnuCashAccount(
             guid=row["guid"],
             code=row["code"],
-            _name=row["name"],
+            name=row["name"],
             parent_name=row["parent_name"],
             parent_code=row["parent_code"],
         )
@@ -73,10 +73,10 @@ def make_linked_account(
     if account.parent_code:
         name = account.parent_name
         code = account.parent_code
-        name_supplementary = account._name
+        name_supplementary = account.name
         code_supplementary = account.code
     else:
-        name = account._name
+        name = account.name
         code = account.code
         name_supplementary = ""
         code_supplementary = KAIKEIO_NO_ACCOUNT

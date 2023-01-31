@@ -35,8 +35,7 @@ class GnuCashAccount:
 
     code: str
     guid: str
-    # TODO rename to nae
-    _name: str
+    name: str
     # TODO remove
     parent_name: str
     parent_code: str
