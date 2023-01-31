@@ -7,7 +7,12 @@
 when writing to csv
 - Allow specifying start and end date
 - Allow specifying start number
-- Make account codes nullable
-- Link splits or transactions to gnu cash accounts, not linked accounts
-- Technically, since Japanese Yen doesn't use decimals, we don't need to use
-the DECIMAL type
+
+# Won't do for now
+
+## Decimals
+
+Technically, since Japanese Yen doesn't use decimals, we don't need to use
+the Decimal type. But, on the other hand, the ergonimics of converting strings
+into Decimals are pretty nice. Yes, using int will prevent us from accidentally
+introducing decimal separators into our csv, but that hasn't happened so far
