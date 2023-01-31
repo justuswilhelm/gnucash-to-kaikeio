@@ -15,15 +15,12 @@ from typing import (
     cast,
 )
 
-from .constants import (
-    KAIKEIO_NO_ACCOUNT,
-)
 from .serialize import (
     SplitDict,
+    deserialize_account,
     deserialize_transaction,
 )
 from .types import (
-    Account,
     AccountStore,
     Configuration,
     DbContents,
@@ -54,17 +51,8 @@ def get_accounts(
     """Get all accounts and link them with Kaikeio information."""
     cur = con.cursor()
     cur.execute(select_accounts)
-    return {
-        row["guid"]: Account(
-            guid=row["guid"],
-            account_code=row["code"],
-            account_name=row["name"],
-            account_supplementary_code=row["supplementary_code"]
-            or KAIKEIO_NO_ACCOUNT,
-            account_supplementary_name=row["supplementary_name"] or "",
-        )
-        for row in cur.fetchall()
-    }
+    accounts = (deserialize_account(r) for r in cur.fetchall())
+    return {account.guid: account for account in accounts}
 
 
 def get_transactions(

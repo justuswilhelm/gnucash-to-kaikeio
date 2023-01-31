@@ -3,10 +3,12 @@ from datetime import (
     date,
 )
 from typing import (
+    Optional,
     TypedDict,
 )
 
 from . import (
+    constants,
     types,
     util,
 )
@@ -91,14 +93,14 @@ journal_entry_columns = (
 )
 
 
-class AccountLinkDict(TypedDict):
-    """Encode account link information."""
+class AccountDict(TypedDict):
+    """Encode GnuCash account information."""
 
+    guid: str
+    code: str
     name: str
-    account: str
-    account_supplementary: str
-    account_name: str
-    account_supplementary_name: str
+    supplementary_code: Optional[str]
+    supplementary_name: Optional[str]
 
 
 class TransactionDict(TypedDict):
@@ -171,6 +173,18 @@ def serialize_journal_entry(value: types.JournalEntry) -> JournalEntryDict:
 
 
 # Deserializers
+def deserialize_account(account: AccountDict) -> types.Account:
+    """Deserialize an account fetched from GnuCash."""
+    return types.Account(
+        guid=account["guid"],
+        account_code=account["code"],
+        account_name=account["name"],
+        account_supplementary_code=account["supplementary_code"]
+        or constants.KAIKEIO_NO_ACCOUNT,
+        account_supplementary_name=account["supplementary_name"] or "",
+    )
+
+
 def deserialize_transaction(transaction: types.CsvRow) -> types.Transaction:
     """Deserialize a transaction."""
     return types.Transaction(
