@@ -8,9 +8,11 @@ from typing import (
 )
 
 from . import (
-    constants,
     types,
     util,
+)
+from .constants import (
+    KAIKEIO_NO_ACCOUNT,
 )
 
 
@@ -139,23 +141,23 @@ def serialize_journal_entry(value: types.JournalEntry) -> JournalEntryDict:
         "伝票番号": str(value.slip_number),
         "行番号": str(value.line_number),
         "伝票日付": util.format_date(value.slip_date),
-        "借方科目コード": value.借方科目コード,
-        "借方科目名称": value.借方科目名称,
-        "借方補助コード": value.借方補助コード,
-        "借方補助科目名称": value.借方補助科目名称,
-        "借方部門コード": value.借方部門コード,
-        "借方部門名称": value.借方部門名称,
+        "借方科目コード": value.借方科目コード or KAIKEIO_NO_ACCOUNT,
+        "借方科目名称": value.借方科目名称 or "",
+        "借方補助コード": value.借方補助コード or KAIKEIO_NO_ACCOUNT,
+        "借方補助科目名称": value.借方補助科目名称 or "",
+        "借方部門コード": value.借方部門コード or KAIKEIO_NO_ACCOUNT,
+        "借方部門名称": value.借方部門名称 or "",
         "借方課税区分": value.借方課税区分,
         "借方事業分類": value.借方事業分類,
         "借方消費税処理方法": value.借方消費税処理方法,
         "借方消費税率": serialize_consumption_tax_rate(value.借方消費税率),
         "借方金額": str(value.借方金額),
         "借方消費税額": str(value.借方消費税額),
-        "貸方科目コード": value.貸方科目コード,
-        "貸方科目名称": value.貸方科目名称,
-        "貸方補助コード": value.貸方補助コード,
-        "貸方補助科目名称": value.貸方補助科目名称,
-        "貸方部門コード": value.貸方部門コード,
+        "貸方科目コード": value.貸方科目コード or KAIKEIO_NO_ACCOUNT,
+        "貸方科目名称": value.貸方科目名称 or "",
+        "貸方補助コード": value.貸方補助コード or KAIKEIO_NO_ACCOUNT,
+        "貸方補助科目名称": value.貸方補助科目名称 or "",
+        "貸方部門コード": value.貸方部門コード or KAIKEIO_NO_ACCOUNT,
         "貸方部門名称": value.貸方部門名称,
         "貸方課税区分": value.貸方課税区分,
         "貸方事業分類": value.貸方事業分類,
@@ -179,9 +181,8 @@ def deserialize_account(account: AccountDict) -> types.Account:
         guid=account["guid"],
         code=account["code"],
         name=account["name"],
-        supplementary_code=account["supplementary_code"]
-        or constants.KAIKEIO_NO_ACCOUNT,
-        supplementary_name=account["supplementary_name"] or "",
+        supplementary_code=account["supplementary_code"],
+        supplementary_name=account["supplementary_name"],
     )
 
 

@@ -36,9 +36,8 @@ class Account:
     guid: str
     code: str
     name: str
-    # TODO This should be Optional
-    supplementary_code: str
-    supplementary_name: str
+    supplementary_code: Optional[str]
+    supplementary_name: Optional[str]
 
 
 @dataclass
@@ -76,11 +75,11 @@ class JournalEntry:
     slip_number: int
     line_number: int
     slip_date: date
-    借方科目コード: str
-    借方科目名称: str
-    借方補助コード: str
-    借方補助科目名称: str
-    借方部門コード: str
+    借方科目コード: Optional[str]
+    借方科目名称: Optional[str]
+    借方補助コード: Optional[str]
+    借方補助科目名称: Optional[str]
+    借方部門コード: Optional[str]
     借方部門名称: str
     借方課税区分: str
     借方事業分類: str
@@ -88,11 +87,11 @@ class JournalEntry:
     借方消費税率: ConsumptionTaxRate
     借方金額: Optional[Decimal]
     借方消費税額: Decimal
-    貸方科目コード: str
-    貸方科目名称: str
-    貸方補助コード: str
-    貸方補助科目名称: str
-    貸方部門コード: str
+    貸方科目コード: Optional[str]
+    貸方科目名称: Optional[str]
+    貸方補助コード: Optional[str]
+    貸方補助科目名称: Optional[str]
+    貸方部門コード: Optional[str]
     貸方部門名称: str
     貸方課税区分: str
     貸方事業分類: str

@@ -15,9 +15,6 @@ from typing import (
 from . import (
     util,
 )
-from .constants import (
-    KAIKEIO_NO_ACCOUNT,
-)
 from .types import (
     Account,
     ConsumptionTaxRate,
@@ -47,20 +44,20 @@ def make_journal_entry(
         借方補助コード = debit_account.supplementary_code
         借方補助科目名称 = debit_account.supplementary_name
     else:
-        借方科目コード = KAIKEIO_NO_ACCOUNT
-        借方科目名称 = ""
-        借方補助コード = KAIKEIO_NO_ACCOUNT
-        借方補助科目名称 = ""
+        借方科目コード = None
+        借方科目名称 = None
+        借方補助コード = None
+        借方補助科目名称 = None
     if credit_account:
         貸方科目コード = credit_account.code
         貸方科目名称 = credit_account.name
         貸方補助コード = credit_account.supplementary_code
         貸方補助科目名称 = credit_account.supplementary_name
     else:
-        貸方科目コード = KAIKEIO_NO_ACCOUNT
-        貸方科目名称 = ""
-        貸方補助コード = KAIKEIO_NO_ACCOUNT
-        貸方補助科目名称 = ""
+        貸方科目コード = None
+        貸方科目名称 = None
+        貸方補助コード = None
+        貸方補助科目名称 = None
 
     # XXX redundant
     if debit_amount:

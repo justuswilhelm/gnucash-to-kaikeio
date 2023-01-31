@@ -3,6 +3,7 @@
 - Add py test
 - Force complexity down
 - Allow specifying start number
+- Parse guids as 16 byte uuids
 
 # Won't do for now
 
