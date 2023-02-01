@@ -35,8 +35,8 @@ def make_journal_entry(
     credit_account: Optional[Account],
     debit_amount: Optional[Decimal],
     credit_amount: Optional[Decimal],
-    description: str,
-    description_supplementary: str,
+    description: Optional[str],
+    description_supplementary: Optional[str],
 ) -> JournalEntry:
     """Make a JournalEntry."""
     if debit_account:
@@ -118,10 +118,7 @@ def build_simple_journal_entry(
     credit: Optional[Split],
 ) -> JournalEntry:
     """Build a simple journal entry."""
-    if not (credit or debit):
-        raise ValueError("Either debit or credit must not be None")
-
-    memo_parts = []
+    description_supplementary_parts = []
     debit_account = None
     debit_amount = None
     credit_account = None
@@ -132,16 +129,20 @@ def build_simple_journal_entry(
         description = debit.transaction.description
         debit_account = debit.account
         debit_amount = debit.value
-        memo_parts.append(debit.memo)
+        if debit.memo:
+            description_supplementary_parts.append(debit.memo)
 
     if credit:
         date = credit.transaction.date
         description = credit.transaction.description
         credit_account = credit.account
         credit_amount = abs(credit.value)
-        memo_parts.append(credit.memo)
+        if credit.memo:
+            description_supplementary_parts.append(credit.memo)
 
-    memo = util.clean_text(" ".join(memo_parts))
+    description_supplementary = util.clean_text(
+        " ".join(description_supplementary_parts)
+    )
 
     return make_journal_entry(
         slip_number=slip_number,
@@ -151,8 +152,8 @@ def build_simple_journal_entry(
         credit_account=credit_account,
         debit_amount=debit_amount,
         credit_amount=credit_amount,
-        description=description,
-        description_supplementary=memo,
+        description=util.clean_text(description),
+        description_supplementary=description_supplementary,
     )
 
 

@@ -15,6 +15,9 @@ from typing import (
     cast,
 )
 
+from . import (
+    util,
+)
 from .serialize import (
     SplitDict,
     deserialize_account,
@@ -96,7 +99,7 @@ def get_splits(
             guid=split_dict["guid"],
             account=account,
             transaction=transaction,
-            memo=split_dict["memo"],
+            memo=util.clean_text(split_dict["memo"]),
             value=Decimal(split_dict["value_num"]),
         )
         db_contents.split_store[split.guid] = split

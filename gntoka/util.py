@@ -4,6 +4,7 @@ from datetime import (
 )
 from typing import (
     Iterable,
+    Optional,
 )
 
 from .types import (
@@ -26,6 +27,16 @@ def get_credits(splits: Iterable[Split]) -> Iterable[Split]:
     return filter(lambda split: split.value < 0, splits)
 
 
-def clean_text(txt: str) -> str:
+def clean_text(txt: Optional[str]) -> Optional[str]:
     """Remove or replace characters that Kaikeio does not like."""
-    return txt.replace("\xa0", " ")
+    if not txt:
+        return None
+    tr = str.maketrans(
+        {
+            "\xa0": " ",
+        }
+    )
+    replaced = txt.translate(tr)
+    # Ensure we can still get this to shift-jis
+    assert replaced.encode("shift-jis")
+    return replaced

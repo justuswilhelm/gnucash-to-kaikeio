@@ -46,7 +46,7 @@ class Transaction:
 
     guid: str
     date: date
-    description: str
+    description: Optional[str]
 
 
 @dataclass
@@ -56,7 +56,7 @@ class Split:
     guid: str
     account: Account
     transaction: Transaction
-    memo: str
+    memo: Optional[str]
     value: Decimal
 
 
@@ -99,9 +99,9 @@ class JournalEntry:
     貸方消費税率: ConsumptionTaxRate
     貸方金額: Optional[Decimal]
     貸方消費税額: Decimal
-    摘要: str
-    補助摘要: str
-    メモ: str
+    摘要: Optional[str]
+    補助摘要: Optional[str]
+    メモ: Optional[str]
     # XXX investigate whether unicode normalization got to us here...
     付箋１: str
     付箋２: str

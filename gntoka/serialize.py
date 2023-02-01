@@ -165,9 +165,9 @@ def serialize_journal_entry(value: types.JournalEntry) -> JournalEntryDict:
         "貸方消費税率": serialize_consumption_tax_rate(value.貸方消費税率),
         "貸方金額": str(value.貸方金額),
         "貸方消費税額": str(value.貸方消費税額),
-        "摘要": value.摘要,
-        "補助摘要": value.補助摘要,
-        "メモ": value.メモ,
+        "摘要": value.摘要 or "",
+        "補助摘要": value.補助摘要 or "",
+        "メモ": value.メモ or "",
         "付箋１": value.付箋１,
         "付箋２": value.付箋２,
         "伝票種別": value.伝票種別,
@@ -182,7 +182,7 @@ def deserialize_account(account: AccountDict) -> types.Account:
         code=account["code"],
         name=account["name"],
         supplementary_code=account["supplementary_code"],
-        supplementary_name=account["supplementary_name"],
+        supplementary_name=util.clean_text(account["supplementary_name"]),
     )
 
 
@@ -192,5 +192,5 @@ def deserialize_transaction(transaction: types.CsvRow) -> types.Transaction:
         guid=transaction["guid"],
         # TODO Use string format based parsing instead
         date=date.fromisoformat(transaction["post_date"].split(" ")[0]),
-        description=transaction["description"],
+        description=util.clean_text(transaction["description"]),
     )
