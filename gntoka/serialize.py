@@ -14,6 +14,9 @@ from . import (
 from .constants import (
     KAIKEIO_NO_ACCOUNT,
 )
+from .util import (
+    length_sjis,
+)
 
 
 # Dictionaries
@@ -137,44 +140,161 @@ def serialize_consumption_tax_rate(value: types.ConsumptionTaxRate) -> str:
 
 def serialize_journal_entry(value: types.JournalEntry) -> JournalEntryDict:
     """Serialize a journal entry."""
+    # Indexing
+    assert 0 <= value.slip_number <= 9_999_999, value.slip_number
+    slip_number = str(value.slip_number)
+
+    assert 0 < value.line_number <= 999, value.line_number
+    line_number = str(value.line_number)
+
+    slip_date = util.format_date(value.slip_date)
+
+    # Debit
+    # TODO Validate number here
+    debit_code = value.debit_code or KAIKEIO_NO_ACCOUNT
+
+    debit_name = value.debit_name or ""
+    assert length_sjis(debit_name) <= 30, debit_name
+
+    # TODO Validate number here
+    debit_supplementary_code = (
+        value.debit_supplementary_code or KAIKEIO_NO_ACCOUNT
+    )
+
+    debit_supplementary_name = value.debit_supplementary_name or ""
+    assert (
+        length_sjis(debit_supplementary_name) <= 30
+    ), debit_supplementary_name
+
+    # TODO Validate number here
+    debit_department_code = value.debit_department_code or KAIKEIO_NO_ACCOUNT
+
+    debit_department_name = value.debit_department_name or ""
+    assert length_sjis(debit_department_name) <= 30, debit_department_name
+
+    # TODO Validate further here
+    debit_tax_class = value.debit_tax_class
+
+    # TODO Validate number here
+    debit_business_category = value.debit_business_category
+
+    # TODO Validate here
+    debit_consumption_tax_method = value.debit_consumption_tax_method
+
+    # This one is valid by serialization
+    debit_consumption_tax_rate = serialize_consumption_tax_rate(
+        value.debit_consumption_tax_rate
+    )
+
+    if value.debit_amount:
+        assert (
+            -9_999_999_999 <= value.debit_amount <= 9_999_999_999
+        ), value.debit_amount
+    debit_amount = str(value.debit_amount or 0)
+
+    assert (
+        -9_999_999_999 <= value.debit_consumption_tax_amount <= 9_999_999_999
+    ), value.debit_consumption_tax_amount
+    debit_consumption_tax_amount = str(value.debit_consumption_tax_amount)
+
+    # Credit
+    # TODO Validate number here
+    credit_code = value.credit_code or KAIKEIO_NO_ACCOUNT
+
+    credit_name = value.credit_name or ""
+    assert length_sjis(credit_name) <= 30, credit_name
+
+    # TODO Validate number here
+    credit_supplementary_code = (
+        value.credit_supplementary_code or KAIKEIO_NO_ACCOUNT
+    )
+
+    credit_supplementary_name = value.credit_supplementary_name or ""
+    assert (
+        length_sjis(credit_supplementary_name) <= 30
+    ), credit_supplementary_name
+
+    # TODO Validate number here
+    credit_department_code = value.credit_department_code or KAIKEIO_NO_ACCOUNT
+
+    credit_department_name = value.credit_department_name
+    assert length_sjis(credit_department_name) <= 30, credit_department_name
+
+    # TODO Validate further here
+    credit_tax_class = value.credit_tax_class
+
+    # TODO Validate number here
+    credit_business_category = value.credit_business_category
+
+    # TODO Validate here
+    credit_consumption_tax_method = value.credit_consumption_tax_method
+
+    # This one is valid by serialization
+    credit_consumption_tax_rate = serialize_consumption_tax_rate(
+        value.credit_consumption_tax_rate
+    )
+
+    if value.credit_amount:
+        assert (
+            -9_999_999_999 <= value.credit_amount <= 9_999_999_999
+        ), value.credit_amount
+    credit_amount = str(value.credit_amount or 0)
+
+    credit_consumption_tax_amount = str(value.credit_consumption_tax_amount)
+    assert (
+        -9_999_999_999 <= value.credit_consumption_tax_amount <= 9_999_999_999
+    ), value.credit_consumption_tax_amount
+
+    # Annotations
+    summary = value.summary or ""
+    assert length_sjis(summary) <= 30, summary
+
+    supplementary_summary = value.supplementary_summary or ""
+    assert length_sjis(supplementary_summary) <= 30, supplementary_summary
+
+    memo = value.memo or ""
+    assert length_sjis(memo) <= 200, memo
+
+    tag1 = value.tag1
+
+    tag2 = value.tag2
+
+    slip_type = value.slip_type
+
     return {
-        "伝票番号": str(value.slip_number),
-        "行番号": str(value.line_number),
-        "伝票日付": util.format_date(value.slip_date),
-        "借方科目コード": value.debit_code or KAIKEIO_NO_ACCOUNT,
-        "借方科目名称": value.debit_name or "",
-        "借方補助コード": value.debit_supplementary_code or KAIKEIO_NO_ACCOUNT,
-        "借方補助科目名称": value.debit_supplementary_name or "",
-        "借方部門コード": value.debit_department_code or KAIKEIO_NO_ACCOUNT,
-        "借方部門名称": value.debit_department_name or "",
-        "借方課税区分": value.debit_tax_class,
-        "借方事業分類": value.debit_business_category,
-        "借方消費税処理方法": value.debit_consumption_tax_method,
-        "借方消費税率": serialize_consumption_tax_rate(
-            value.debit_consumption_tax_rate
-        ),
-        "借方金額": str(value.debit_amount),
-        "借方消費税額": str(value.debit_consumption_tax_amount),
-        "貸方科目コード": value.credit_code or KAIKEIO_NO_ACCOUNT,
-        "貸方科目名称": value.credit_name or "",
-        "貸方補助コード": value.credit_supplementary_code or KAIKEIO_NO_ACCOUNT,
-        "貸方補助科目名称": value.credit_supplementary_name or "",
-        "貸方部門コード": value.credit_department_code or KAIKEIO_NO_ACCOUNT,
-        "貸方部門名称": value.credit_department_name,
-        "貸方課税区分": value.credit_tax_class,
-        "貸方事業分類": value.credit_business_category,
-        "貸方消費税処理方法": value.credit_consumption_tax_method,
-        "貸方消費税率": serialize_consumption_tax_rate(
-            value.credit_consumption_tax_rate
-        ),
-        "貸方金額": str(value.credit_amount),
-        "貸方消費税額": str(value.credit_consumption_tax_amount),
-        "摘要": value.summary or "",
-        "補助摘要": value.supplementary_summary or "",
-        "メモ": value.memo or "",
-        "付箋１": value.tag1,
-        "付箋２": value.tag2,
-        "伝票種別": value.slip_type,
+        "伝票番号": slip_number,
+        "行番号": line_number,
+        "伝票日付": slip_date,
+        "借方科目コード": debit_code,
+        "借方科目名称": debit_name,
+        "借方補助コード": debit_supplementary_code,
+        "借方補助科目名称": debit_supplementary_name,
+        "借方部門コード": debit_department_code,
+        "借方部門名称": debit_department_name,
+        "借方課税区分": debit_tax_class,
+        "借方事業分類": debit_business_category,
+        "借方消費税処理方法": debit_consumption_tax_method,
+        "借方消費税率": debit_consumption_tax_rate,
+        "借方金額": debit_amount,
+        "借方消費税額": debit_consumption_tax_amount,
+        "貸方科目コード": credit_code,
+        "貸方科目名称": credit_name,
+        "貸方補助コード": credit_supplementary_code,
+        "貸方補助科目名称": credit_supplementary_name,
+        "貸方部門コード": credit_department_code,
+        "貸方部門名称": credit_department_name,
+        "貸方課税区分": credit_tax_class,
+        "貸方事業分類": credit_business_category,
+        "貸方消費税処理方法": credit_consumption_tax_method,
+        "貸方消費税率": credit_consumption_tax_rate,
+        "貸方金額": credit_amount,
+        "貸方消費税額": credit_consumption_tax_amount,
+        "摘要": summary,
+        "補助摘要": supplementary_summary,
+        "メモ": memo,
+        "付箋１": tag1,
+        "付箋２": tag2,
+        "伝票種別": slip_type,
     }
 
 

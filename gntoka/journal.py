@@ -105,7 +105,8 @@ def make_journal_entry(
         summary=description,
         supplementary_summary=description_supplementary,
         memo=memo,
-        tag1="0",
+        # Set it to blue
+        tag1="3",
         tag2="0",
         slip_type="0",
     )

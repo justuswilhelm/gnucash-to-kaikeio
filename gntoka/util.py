@@ -40,3 +40,8 @@ def clean_text(txt: Optional[str]) -> Optional[str]:
     # Ensure we can still get this to shift-jis
     assert replaced.encode("shift-jis")
     return replaced
+
+
+def length_sjis(txt: str) -> int:
+    """Validate the length of a string when converted to Shift_JIS."""
+    return len(txt.encode("shift-jis"))
