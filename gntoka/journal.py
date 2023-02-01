@@ -187,7 +187,7 @@ def build_journal_entries(
     counter: JournalEntryCounter, tx: TransactionSplit
 ) -> JournalEntries:
     """Build journal entries given a transaction."""
-    assert len(tx) > 1
+    assert len(tx) > 1, tx
     assert sum(split.value for split in tx) == Decimal(0), tx
     debits = list(util.get_debits(tx))
     credits = list(util.get_credits(tx))
