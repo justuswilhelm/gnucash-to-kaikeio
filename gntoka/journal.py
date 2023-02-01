@@ -40,37 +40,37 @@ def make_journal_entry(
 ) -> JournalEntry:
     """Make a JournalEntry."""
     if debit_account:
-        借方科目コード = debit_account.code
-        借方科目名称 = debit_account.name
-        借方補助コード = debit_account.supplementary_code
-        借方補助科目名称 = debit_account.supplementary_name
+        debit_code = debit_account.code
+        debit_name = debit_account.name
+        debit_supplementary_code = debit_account.supplementary_code
+        debit_supplementary_name = debit_account.supplementary_name
     else:
-        借方科目コード = None
-        借方科目名称 = None
-        借方補助コード = None
-        借方補助科目名称 = None
+        debit_code = None
+        debit_name = None
+        debit_supplementary_code = None
+        debit_supplementary_name = None
     if credit_account:
-        貸方科目コード = credit_account.code
-        貸方科目名称 = credit_account.name
-        貸方補助コード = credit_account.supplementary_code
-        貸方補助科目名称 = credit_account.supplementary_name
+        credit_code = credit_account.code
+        credit_name = credit_account.name
+        credit_supplementary_code = credit_account.supplementary_code
+        credit_supplementary_name = credit_account.supplementary_name
     else:
-        貸方科目コード = None
-        貸方科目名称 = None
-        貸方補助コード = None
-        貸方補助科目名称 = None
+        credit_code = None
+        credit_name = None
+        credit_supplementary_code = None
+        credit_supplementary_name = None
 
     # XXX redundant
     if debit_amount:
         assert debit_amount >= 0
-        借方金額 = debit_amount
+        debit_amount = debit_amount
     else:
-        借方金額 = Decimal(0)
+        debit_amount = Decimal(0)
     if credit_amount:
         assert credit_amount >= 0
-        貸方金額 = credit_amount
+        credit_amount = credit_amount
     else:
-        貸方金額 = Decimal(0)
+        credit_amount = Decimal(0)
 
     memo = f"Exported {date.today().isoformat()} from GnuCash"
 
@@ -78,36 +78,36 @@ def make_journal_entry(
         slip_number=slip_number,
         line_number=line_number or 1,
         slip_date=slip_date,
-        借方科目コード=借方科目コード,
-        借方科目名称=借方科目名称,
-        借方補助コード=借方補助コード,
-        借方補助科目名称=借方補助科目名称,
-        借方部門コード="0",
-        借方部門名称="",
-        借方課税区分="0",
-        借方事業分類="0",
-        借方消費税処理方法="3",
-        借方消費税率=ConsumptionTaxRate.ZERO,
-        借方金額=借方金額,
-        借方消費税額=Decimal("0"),
-        貸方科目コード=貸方科目コード,
-        貸方科目名称=貸方科目名称,
-        貸方補助コード=貸方補助コード,
-        貸方補助科目名称=貸方補助科目名称,
-        貸方部門コード="0",
-        貸方部門名称="",
-        貸方課税区分="",
-        貸方事業分類="0",
-        貸方消費税処理方法="3",
-        貸方消費税率=ConsumptionTaxRate.ZERO,
-        貸方金額=貸方金額,
-        貸方消費税額=Decimal("0"),
-        摘要=description,
-        補助摘要=description_supplementary,
-        メモ=memo,
-        付箋１="0",
-        付箋２="0",
-        伝票種別="0",
+        debit_code=debit_code,
+        debit_name=debit_name,
+        debit_supplementary_code=debit_supplementary_code,
+        debit_supplementary_name=debit_supplementary_name,
+        debit_department_code="0",
+        debit_department_name="",
+        debit_tax_class="0",
+        debit_business_category="0",
+        debit_consumption_tax_method="3",
+        debit_consumption_tax_rate=ConsumptionTaxRate.ZERO,
+        debit_amount=debit_amount,
+        debit_consumption_tax_amount=Decimal("0"),
+        credit_code=credit_code,
+        credit_name=credit_name,
+        credit_supplementary_code=credit_supplementary_code,
+        credit_supplementary_name=credit_supplementary_name,
+        credit_department_code="0",
+        credit_department_name="",
+        credit_tax_class="",
+        credit_business_category="0",
+        credit_consumption_tax_method="3",
+        credit_consumption_tax_rate=ConsumptionTaxRate.ZERO,
+        credit_amount=credit_amount,
+        credit_consumption_tax_amount=Decimal("0"),
+        summary=description,
+        supplementary_summary=description_supplementary,
+        memo=memo,
+        tag1="0",
+        tag2="0",
+        slip_type="0",
     )
 
 

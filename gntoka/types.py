@@ -75,37 +75,36 @@ class JournalEntry:
     slip_number: int
     line_number: int
     slip_date: date
-    借方科目コード: Optional[str]
-    借方科目名称: Optional[str]
-    借方補助コード: Optional[str]
-    借方補助科目名称: Optional[str]
-    借方部門コード: Optional[str]
-    借方部門名称: str
-    借方課税区分: str
-    借方事業分類: str
-    借方消費税処理方法: str
-    借方消費税率: ConsumptionTaxRate
-    借方金額: Optional[Decimal]
-    借方消費税額: Decimal
-    貸方科目コード: Optional[str]
-    貸方科目名称: Optional[str]
-    貸方補助コード: Optional[str]
-    貸方補助科目名称: Optional[str]
-    貸方部門コード: Optional[str]
-    貸方部門名称: str
-    貸方課税区分: str
-    貸方事業分類: str
-    貸方消費税処理方法: str
-    貸方消費税率: ConsumptionTaxRate
-    貸方金額: Optional[Decimal]
-    貸方消費税額: Decimal
-    摘要: Optional[str]
-    補助摘要: Optional[str]
-    メモ: Optional[str]
-    # XXX investigate whether unicode normalization got to us here...
-    付箋１: str
-    付箋２: str
-    伝票種別: str
+    debit_code: Optional[str]
+    debit_name: Optional[str]
+    debit_supplementary_code: Optional[str]
+    debit_supplementary_name: Optional[str]
+    debit_department_code: Optional[str]
+    debit_department_name: str
+    debit_tax_class: str
+    debit_business_category: str
+    debit_consumption_tax_method: str
+    debit_consumption_tax_rate: ConsumptionTaxRate
+    debit_amount: Optional[Decimal]
+    debit_consumption_tax_amount: Decimal
+    credit_code: Optional[str]
+    credit_name: Optional[str]
+    credit_supplementary_code: Optional[str]
+    credit_supplementary_name: Optional[str]
+    credit_department_code: Optional[str]
+    credit_department_name: str
+    credit_tax_class: str
+    credit_business_category: str
+    credit_consumption_tax_method: str
+    credit_consumption_tax_rate: ConsumptionTaxRate
+    credit_amount: Optional[Decimal]
+    credit_consumption_tax_amount: Decimal
+    summary: Optional[str]
+    supplementary_summary: Optional[str]
+    memo: Optional[str]
+    tag1: str
+    tag2: str
+    slip_type: str
 
 
 AccountStore = Dict[str, Account]
