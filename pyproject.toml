@@ -11,6 +11,7 @@ lines_after_imports = 2
 multi_line_output = 3
 sections = ["STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
 known_third_party = [
+    "mojimoji",
 ]
 
 [tool.pytest.ini_options]

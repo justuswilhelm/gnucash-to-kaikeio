@@ -7,6 +7,8 @@ from typing import (
     Optional,
 )
 
+import mojimoji
+
 from .types import (
     Split,
 )
@@ -34,10 +36,12 @@ def clean_text(txt: Optional[str]) -> Optional[str]:
     tr = str.maketrans(
         {
             "\xa0": " ",
-        }
+            "　": " ",
+        },
     )
     replaced = txt.translate(tr)
     # Ensure we can still get this to shift-jis
+    replaced = mojimoji.zen_to_han(replaced)
     assert replaced.encode("shift-jis")
     return replaced
 

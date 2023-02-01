@@ -246,13 +246,26 @@ def serialize_journal_entry(value: types.JournalEntry) -> JournalEntryDict:
     ), value.credit_consumption_tax_amount
 
     # Annotations
+    append_to_memo: list[str] = []
+
     summary = value.summary or ""
+    # Everything we couldn't add here we just cram into the memo
+    CUTOFF = 15
+    if len(summary) > CUTOFF:
+        append_to_memo.append(summary)
+        summary = summary[:CUTOFF]
     assert length_sjis(summary) <= 30, summary
 
     supplementary_summary = value.supplementary_summary or ""
+    # Everything we couldn't add here we just cram into the memo
+    if len(supplementary_summary) > CUTOFF:
+        append_to_memo.append(supplementary_summary)
+        supplementary_summary = supplementary_summary[:CUTOFF]
     assert length_sjis(supplementary_summary) <= 30, supplementary_summary
 
-    memo = value.memo or ""
+    original_memo = value.memo or ""
+    # And here we join it into the memo
+    memo = " ".join(append_to_memo + [original_memo])
     assert length_sjis(memo) <= 200, memo
 
     tag1 = value.tag1

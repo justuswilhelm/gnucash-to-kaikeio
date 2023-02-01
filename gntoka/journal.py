@@ -72,7 +72,7 @@ def make_journal_entry(
     else:
         credit_amount = Decimal(0)
 
-    memo = f"Exported {date.today().isoformat()} from GnuCash"
+    memo = f"{date.today().isoformat()}"
 
     return JournalEntry(
         slip_number=slip_number,
